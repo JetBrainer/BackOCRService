@@ -1,5 +1,0 @@
-apikey       = "7f628fab5f88957"
-language     = "rus"
-url          = "https://api.ocr.space/parse/image"
-database_url = "host=localhost dbname=rest sslmode=disable"
-port         = "8080"
