@@ -1,9 +1,15 @@
 package apiserver
 
-import "github.com/JetBrainer/BackOCRService/internal/app/model"
+type Config struct {
+	ApiKey   string `toml:"apikey"`
+	Language string `toml:"language"`
+	Url		 string `toml:"url"`
+	DBUrl	 string `toml:"database_url"`
+	HttpPort string `toml:"port"`
+}
 
-func InitConfig() *model.Config{
-	return &model.Config{
+func InitConfig() *Config{
+	return &Config{
 		ApiKey:   "SomeKey",
 		Language: "rus",
 		Url:	  "https://api.ocr.space/parse/image",
@@ -40,19 +46,4 @@ type OCRText struct {
 	ErrorDetails		  string   `json:"ErrorDetails"`
 	SearchablePDFURL	  string   `json:"SearchablePDFURL"`
 }
-
-func (ocr OCRText) JustText() string{
-	text := ""
-	if ocr.IsErroredOnProcessing{
-		for _, page := range ocr.ErrorMessage{
-			text += page
-		}
-	} else {
-		for _, page := range ocr.ParsedResults{
-			text += page.ParsedText
-		}
-	}
-	return text
-}
-
 

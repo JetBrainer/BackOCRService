@@ -1,9 +1,8 @@
-package model
+package apiserver
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
 	"io"
 	"io/ioutil"
 	"log"
@@ -14,16 +13,9 @@ import (
 	"path/filepath"
 )
 
-type Config struct {
-	ApiKey   string `toml:"apikey"`
-	Language string `toml:"language"`
-	Url		 string `toml:"url"`
-	DBUrl	 string `toml:"database_url"`
-	HttpPort string `toml:"port"`
-}
 
-func (c Config) ParseForm(fileURL string) (apiserver.OCRText, error){
-	var results apiserver.OCRText
+func (c Config) ParseFromURL(fileURL string) (OCRText, error){
+	var results OCRText
 	resp, err := http.PostForm(c.Url, url.Values{
 		"url": 							{fileURL},
 		"language": 					{c.Language},
@@ -50,8 +42,8 @@ func (c Config) ParseForm(fileURL string) (apiserver.OCRText, error){
 	return results, err
 }
 
-func (c Config) ParseFromBase64(baseString string) (apiserver.OCRText, error){
-	var results apiserver.OCRText
+func (c Config) ParseFromBase64(baseString string) (OCRText, error){
+	var results OCRText
 	resp, err := http.PostForm(c.Url, url.Values{
 		"base64Image":					{baseString},
 		"language":						{c.Language},
@@ -79,8 +71,8 @@ func (c Config) ParseFromBase64(baseString string) (apiserver.OCRText, error){
 	return results,nil
 }
 
-func (c Config)ParseFromLocal (localPath string) (apiserver.OCRText,error){
-	var results apiserver.OCRText
+func (c Config)ParseFromLocal (localPath string) (OCRText,error){
+	var results OCRText
 	params := map[string]string{
 		"language":					c.Language,
 		"apikey":					c.ApiKey,
@@ -134,5 +126,19 @@ func (c Config)ParseFromLocal (localPath string) (apiserver.OCRText,error){
 		}
 	}
 	return results, nil
+}
+
+func (ocr OCRText) JustText() string{
+	text := ""
+	if ocr.IsErroredOnProcessing{
+		for _, page := range ocr.ErrorMessage{
+			text += page
+		}
+	} else {
+		for _, page := range ocr.ParsedResults{
+			text += page.ParsedText
+		}
+	}
+	return text
 }
 

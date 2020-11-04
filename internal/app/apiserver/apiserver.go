@@ -2,13 +2,12 @@ package apiserver
 
 import (
 	"database/sql"
-	"github.com/JetBrainer/BackOCRService/internal/app/model"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
 // Start server
-func Start(config *model.Config) (*http.Server, *sql.DB){
+func Start(config *Config) (*http.Server, *sql.DB){
 	db, err := newDB(config.DBUrl)
 	if err != nil{
 		log.Error().Msg("Database URL ERROR")
