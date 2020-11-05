@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
 	"log"
@@ -31,6 +32,12 @@ func main(){
 		log.Fatal(err)
 	}
 
+	result, err := config.ParseFromURL("https://static.tildacdn.com/tild3565-6338-4534-b238-383730666131/iPhone-_2.png")
+	if err != nil{
+		fmt.Println(err)
+	}
+
+	fmt.Println(result.JustText())
 	//// context to shutdown
 	//ctx, cancel := context.WithCancel(context.Background())
 	//defer cancel()

@@ -1,0 +1,1 @@
+migrate -path migrations -database "postgres://localhost/rest?sslmode=disable" up

@@ -25,4 +25,5 @@ func (s *server) ServeHTTP(w http.ResponseWriter,r *http.Request){
 }
 
 func (s *server) configureRouter(){
+
 }
