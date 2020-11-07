@@ -1,2 +1,5 @@
 .idea
 config/apiserver.toml
+.env
+migration-up.sh
+migration-down.sh

@@ -1,4 +1,4 @@
-BIN := main
+BIN := server
 .PHONY: test
 ## test: runs go test with default values
 test:

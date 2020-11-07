@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
@@ -9,6 +10,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	_ "github.com/lib/pq"
 )
 
 // Toml config path file
@@ -38,28 +41,28 @@ func main(){
 	}
 
 	fmt.Println(result.JustText())
-	//// context to shutdown
-	//ctx, cancel := context.WithCancel(context.Background())
-	//defer cancel()
-	//
-	//// Start Server
-	//serv, db := apiserver.Start(config)
-	//
-	//defer func() {
-	//	if err := db.Close(); err != nil{
-	//		log.Fatal(err)
-	//		return
-	//	}
-	//}()
-	//
-	//defer func() {
-	//	if err := serv.Shutdown(ctx); err != nil{
-	//		log.Fatal(err)
-	//	}
-	//}()
-	//
-	//// Signal
-	//handleSignals()
+	// context to shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Start Server
+	serv, db := apiserver.Start(config)
+
+	defer func() {
+		if err := db.Close(); err != nil{
+			log.Fatal(err)
+			return
+		}
+	}()
+
+	defer func() {
+		if err := serv.Shutdown(ctx); err != nil{
+			log.Fatal(err)
+		}
+	}()
+
+	// Signal
+	handleSignals()
 }
 
 // Graceful Shutdown

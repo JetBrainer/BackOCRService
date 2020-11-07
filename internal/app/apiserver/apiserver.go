@@ -18,6 +18,7 @@ func Start(config *Config) (*http.Server, *sql.DB){
 		Addr: ":" + config.HttpPort,
 		Handler: r,
 	}
+	log.Info().Msg("Starting server...")
 	go func() {
 		if err := serv.ListenAndServe(); err != nil{
 			log.Fatal().Err(err).Msg("Start up Failed")

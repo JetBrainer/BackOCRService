@@ -1,1 +1,1 @@
-migrate -path migrations -database "postgres://localhost/rest?sslmode=disable" down
+migrate -path migrations -database "postgres://postgres:password@localhost:5432/rest?sslmode=disable" down
