@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 )
 
-
+// Parse data from URL
 func (c Config) ParseFromURL(fileURL string) (OCRText, error){
 	var results OCRText
 	resp, err := http.PostForm(c.Url, url.Values{
@@ -42,6 +42,7 @@ func (c Config) ParseFromURL(fileURL string) (OCRText, error){
 	return results, err
 }
 
+// Parse to OCR From Base64
 func (c Config) ParseFromBase64(baseString string) (OCRText, error){
 	var results OCRText
 	resp, err := http.PostForm(c.Url, url.Values{
@@ -71,15 +72,18 @@ func (c Config) ParseFromBase64(baseString string) (OCRText, error){
 	return results,nil
 }
 
+// Parse Local Files
 func (c Config)ParseFromLocal (localPath string) (OCRText,error){
 	var results OCRText
 	params := map[string]string{
 		"language":					c.Language,
 		"apikey":					c.ApiKey,
 		"isOverlayRequired":		"true",
-		"isSearchablePdfTextLayer":	"true",
+		//"isSearchablePdfTextLayer":	"true",
 		"scale":					"true",
 	}
+
+	// Open file and past data with multipart form
 	file, err := os.Open(localPath)
 	if err != nil{
 		return results, err

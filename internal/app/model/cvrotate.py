@@ -1,111 +1,63 @@
 import cv2
 import numpy as np
 
-debug = True
+def deskew(im, max_skew=10):
+    height, width, channel = im.shape
 
-#Display image
-def display(img, frameName="OpenCV Image"):
-    if not debug:
-        return
-    h, w = img.shape[0:2]
-    neww = 800
-    newh = int(neww*(h/w))
-    img = cv2.resize(img, (neww, newh))
-    cv2.imshow(frameName, img)
-    cv2.waitKey(0)
+    # Create a grayscale image and denoise it
+    im_gs = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    im_gs = cv2.fastNlMeansDenoising(im_gs, h=3)
 
-#rotate the image with given theta value
-def rotate(img, theta):
-    rows, cols = img.shape[0], img.shape[1]
-    image_center = (cols/2, rows/2)
+    # Create an inverted B&W copy using Otsu (automatic) thresholding
+    im_bw = cv2.threshold(im_gs, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 
-    M = cv2.getRotationMatrix2D(image_center,theta,1)
+    # Detect lines in this image. Parameters here mostly arrived at by trial and error.
+    lines = cv2.HoughLinesP(
+        im_bw, 1, np.pi / 180, 200, minLineLength=width / 12, maxLineGap=width / 150
+    )
 
-    abs_cos = abs(M[0,0])
-    abs_sin = abs(M[0,1])
+    # Collect the angles of these lines (in radians)
+    angles = []
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        angles.append(np.arctan2(y2 - y1, x2 - x1))
 
-    bound_w = int(rows * abs_sin + cols * abs_cos)
-    bound_h = int(rows * abs_cos + cols * abs_sin)
+    # If the majority of our lines are vertical, this is probably a landscape image
+    landscape = np.sum([abs(angle) > np.pi / 4 for angle in angles]) > len(angles) / 2
 
-    M[0, 2] += bound_w/2 - image_center[0]
-    M[1, 2] += bound_h/2 - image_center[1]
+    # Filter the angles to remove outliers based on max_skew
+    if landscape:
+        angles = [
+            angle
+            for angle in angles
+            if np.deg2rad(90 - max_skew) < abs(angle) < np.deg2rad(90 + max_skew)
+        ]
+    else:
+        angles = [angle for angle in angles if abs(angle) < np.deg2rad(max_skew)]
 
-    # rotate orignal image to show transformation
-    rotated = cv2.warpAffine(img,M,(bound_w,bound_h),borderValue=(255,255,255))
-    return rotated
+    if len(angles) < 5:
+        # Insufficient data to deskew
+        return im
 
+    # Average the angles to a degree offset
+    angle_deg = np.rad2deg(np.median(angles))
 
-def slope(x1, y1, x2, y2):
-    if x1 == x2:
-        return 0
-    slope = (y2-y1)/(x2-x1)
-    theta = np.rad2deg(np.arctan(slope))
-    return theta
+    # If this is landscape image, rotate the entire canvas appropriately
+    if landscape:
+        if angle_deg < 0:
+            im = cv2.rotate(im, cv2.ROTATE_90_CLOCKWISE)
+            angle_deg += 90
+        elif angle_deg > 0:
+            im = cv2.rotate(im, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            angle_deg -= 90
+        elif angle_deg == 180:
+            im = cv2.rotate(im,cv2.ROTATE_180)
 
+    # Rotate the image by the residual offset
+    M = cv2.getRotationMatrix2D((width / 2, height / 2), angle_deg, 1)
+    im = cv2.warpAffine(im, M, (width, height), borderMode=cv2.BORDER_REPLICATE)
+    return im
 
-def main(filePath):
-    img = cv2.imread(filePath)
-    textImg = img.copy()
+img_before = cv2.imread(r'/home/somatic/github.com/JetBrainer/BackOCRService/images/photo_2020-11-08_22-15-43.jpg')
 
-    small = cv2.cvtColor(textImg, cv2.COLOR_BGR2GRAY)
-
-    #find the gradient map
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
-
-    display(grad)
-
-    #Binarize the gradient image
-    _, bw = cv2.threshold(grad, 0.0, 255.0, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    display(bw)
-
-    #connect horizontally oriented regions
-    #kernal value (9,1) can be changed to improved the text detection
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 1))
-    connected = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
-    display(connected)
-
-    # using RETR_EXTERNAL instead of RETR_CCOMP
-    _ , contours, hierarchy = cv2.findContours(connected.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-    mask = np.zeros(bw.shape, dtype=np.uint8)
-    #display(mask)
-    #cumulative theta value
-    cummTheta = 0
-    #number of detected text regions
-    ct = 0
-    for idx in range(len(contours)):
-        x, y, w, h = cv2.boundingRect(contours[idx])
-        mask[y:y+h, x:x+w] = 0
-        #fill the contour
-        cv2.drawContours(mask, contours, idx, (255, 255, 255), -1)
-        #display(mask)
-        #ratio of non-zero pixels in the filled region
-        r = float(cv2.countNonZero(mask[y:y+h, x:x+w])) / (w * h)
-
-        #assume at least 45% of the area is filled if it contains text
-        if r > 0.45 and w > 8 and h > 8:
-            #cv2.rectangle(textImg, (x1, y), (x+w-1, y+h-1), (0, 255, 0), 2)
-
-            rect = cv2.minAreaRect(contours[idx])
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            cv2.drawContours(textImg,[box],0,(0,0,255),2)
-
-            #we can filter theta as outlier based on other theta values
-            #this will help in excluding the rare text region with different orientation from ususla value
-            theta = slope(box[0][0], box[0][1], box[1][0], box[1][1])
-            cummTheta += theta
-            ct +=1
-            #print("Theta", theta)
-
-    #find the average of all cumulative theta value
-    orientation = cummTheta/ct
-    print("Image orientation in degress: ", orientation)
-    finalImage = rotate(img, orientation)
-    display(textImg, "Detectd Text minimum bounding box")
-    display(finalImage, "Deskewed Image")
-
-if __name__ == "__main__":
-    filePath = 'D:\data\img6.jpg'
-    main(filePath)
+cv2.imwrite(r'/home/somatic/github.com/JetBrainer/BackOCRService/images/photo_2020-11-08_22-15-43.jpg', deskew(img_before))

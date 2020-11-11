@@ -1,0 +1,1 @@
+migrate -path migrations -database "postgres://postgres:password@localhost:dbport/dbname?sslmode=disable" down

@@ -1,11 +1,10 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
+	"github.com/JetBrainer/BackOCRService/internal/app/model"
 	"log"
 	"os"
 	"os/signal"
@@ -35,34 +34,29 @@ func main(){
 		log.Fatal(err)
 	}
 
-	result, err := config.ParseFromURL("https://static.tildacdn.com/tild3565-6338-4534-b238-383730666131/iPhone-_2.png")
-	if err != nil{
-		fmt.Println(err)
-	}
-
-	fmt.Println(result.JustText())
+	model.RuleUsageLocal(config)
 	// context to shutdown
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Start Server
-	serv, db := apiserver.Start(config)
-
-	defer func() {
-		if err := db.Close(); err != nil{
-			log.Fatal(err)
-			return
-		}
-	}()
-
-	defer func() {
-		if err := serv.Shutdown(ctx); err != nil{
-			log.Fatal(err)
-		}
-	}()
-
-	// Signal
-	handleSignals()
+	//ctx, cancel := context.WithCancel(context.Background())
+	//defer cancel()
+	//
+	//// Start Server
+	//serv, db := apiserver.Start(config)
+	//
+	//defer func() {
+	//	if err := db.Close(); err != nil{
+	//		log.Fatal(err)
+	//		return
+	//	}
+	//}()
+	//
+	//defer func() {
+	//	if err := serv.Shutdown(ctx); err != nil{
+	//		log.Fatal(err)
+	//	}
+	//}()
+	//
+	//// Signal
+	//handleSignals()
 }
 
 // Graceful Shutdown
