@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"github.com/BurntSushi/toml"
 	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
-	"github.com/JetBrainer/BackOCRService/internal/app/model"
-	"log"
+	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,32 +31,24 @@ func main(){
 	// Decode Toml file and record
 	_, err := toml.DecodeFile(configPath,&config)
 	if err != nil{
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Decode file Failed")
 	}
 
-	model.RuleUsageLocal(config)
 	// context to shutdown
-	//ctx, cancel := context.WithCancel(context.Background())
-	//defer cancel()
-	//
-	//// Start Server
-	//serv, db := apiserver.Start(config)
-	//
-	//defer func() {
-	//	if err := db.Close(); err != nil{
-	//		log.Fatal(err)
-	//		return
-	//	}
-	//}()
-	//
-	//defer func() {
-	//	if err := serv.Shutdown(ctx); err != nil{
-	//		log.Fatal(err)
-	//	}
-	//}()
-	//
-	//// Signal
-	//handleSignals()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Start Server
+	serv, db := apiserver.Start(config)
+
+	// Database Close
+	defer db.Close()
+
+	// Server Shutdown
+	defer serv.Shutdown(ctx)
+
+	// Signal
+	handleSignals()
 }
 
 // Graceful Shutdown
@@ -67,10 +59,10 @@ func handleSignals() os.Signal{
 		sig := <-sigChan
 		switch sig {
 		case os.Interrupt:
-			log.Println("Graceful Interrupt Shutdown")
+			log.Info().Msg("Graceful interrupt server")
 			return sig
 		case syscall.SIGTERM:
-			log.Println("Graceful Kill Shutdown")
+			log.Info().Msg("Graceful Kill server")
 			return sig
 		}
 	}

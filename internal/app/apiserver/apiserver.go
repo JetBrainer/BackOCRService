@@ -8,6 +8,7 @@ import (
 
 // Start server
 func Start(config *Config) (*http.Server, *sql.DB){
+	log.Info().Msg("Starting Database...")
 	db, err := newDB(config.DBUrl)
 	if err != nil{
 		log.Error().Msg("Database URL ERROR")
@@ -21,7 +22,7 @@ func Start(config *Config) (*http.Server, *sql.DB){
 	log.Info().Msg("Starting server...")
 	go func() {
 		if err := serv.ListenAndServe(); err != nil{
-			log.Fatal().Err(err).Msg("Start up Failed")
+			log.Fatal().Err(err).Msg("Start server Failed")
 		}
 	}()
 	return serv, db

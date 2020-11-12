@@ -9,8 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 )
 
 // Parse data from URL
@@ -73,43 +71,30 @@ func (c Config) ParseFromBase64(baseString string) (OCRText, error){
 }
 
 // Parse Local Files
-func (c Config)ParseFromLocal (localPath string) (OCRText,error){
+func (c Config)ParseFromLocal (Rbody io.Reader) (OCRText,error){
 	var results OCRText
 	params := map[string]string{
 		"language":					c.Language,
 		"apikey":					c.ApiKey,
 		"isOverlayRequired":		"true",
-		//"isSearchablePdfTextLayer":	"true",
 		"scale":					"true",
 	}
 
-	// Open file and past data with multipart form
-	file, err := os.Open(localPath)
-	if err != nil{
-		return results, err
-	}
-	defer file.Close()
 	body := &bytes.Buffer{}
+	reqBody, _ := ioutil.ReadAll(Rbody)
+	body.Write(reqBody)
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("file",filepath.Base(localPath))
-	if err != nil{
-		return results,err
-	}
 
-	_, err = io.Copy(part,file)
-	if err != nil{
-		return results,err
-	}
 
 	for key, val := range params{
 		_ = writer.WriteField(key,val)
 	}
-	err = writer.Close()
+	err := writer.Close()
 	if err != nil{
 		return results,err
 	}
 
-	req, err := http.NewRequest(http.MethodPost,c.Url,body)
+	req, err := http.NewRequest(http.MethodPost,c.Url,Rbody)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}
