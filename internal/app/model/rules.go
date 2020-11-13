@@ -9,16 +9,17 @@ type Docs interface{
 }
 
 //type DocStruct struct {
-//	InvNumAndData
-//	Payer
-//	Producer
-//	Requisites
-//	SumWithTax
-//	Amount
-//	Followed
-//	SumTax
-//	ProdName
+//	InvNumAndData 	string
+//	Payer 			string
+//	Producer 		string
+//	Requisites 		string
+//	SumWithTax 		string
+//	Amount 			string
+//	Followed 		string
+//	SumTax 			string
+//	ProdName 	string
 //}
+
 // Shows us invoiceNum and Data
 type InvNumAndData string
 
@@ -26,6 +27,7 @@ type InvNumAndData string
 // result due to pattern
 func (in InvNumAndData)Match(text string) string {
 	matched := regexp.MustCompile(string(in)).FindString(text)
+
 	return matched
 }
 
