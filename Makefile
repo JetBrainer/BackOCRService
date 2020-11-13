@@ -6,10 +6,6 @@ test:
 ## install: Install missing dependencies. Runs `go get` internally. e.g; make install get=github.com/foo/bar
 install: go-get
 
-.PHONY: build-tokenizer
-## build-tokenizer: build the tokenizer application
-build-tokenizer:
-	${MAKE} -c tokenizer build
 .PHONY: build
 ## Build project: build command
 build-server:

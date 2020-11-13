@@ -9,8 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	_ "github.com/lib/pq"
 )
 
 // Toml config path file
@@ -41,11 +39,12 @@ func main(){
 	// Start Server
 	serv, db := apiserver.Start(config)
 
-	// Database Close
-	defer db.Close()
 
 	// Server Shutdown
 	defer serv.Shutdown(ctx)
+
+	// Database Close
+	defer db.Close()
 
 	// Signal
 	handleSignals()

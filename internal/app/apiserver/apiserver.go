@@ -2,8 +2,11 @@ package apiserver
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"net/http"
+
+	_ "github.com/lib/pq"
 )
 
 // Start server
@@ -14,7 +17,7 @@ func Start(config *Config) (*http.Server, *sql.DB){
 		log.Error().Msg("Database URL ERROR")
 		return nil, nil
 	}
-	r := newServer()
+	r := newServer(config)
 	serv := &http.Server{
 		Addr: ":" + config.HttpPort,
 		Handler: r,
@@ -29,6 +32,7 @@ func Start(config *Config) (*http.Server, *sql.DB){
 }
 
 func newDB(databaseURL string) (*sql.DB,error){
+	fmt.Println(databaseURL)
 	db, err := sql.Open("postgres",databaseURL)
 	if err != nil{
 		return nil, err
