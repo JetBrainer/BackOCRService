@@ -5,7 +5,12 @@ import (
 	"log"
 )
 
-func RuleUsageLocal(res apiserver.OCRText) (string,string,string,string,string,string,string,string,string){
+type NumData struct {
+	numAndData 	string
+	pattern 	string
+}
+
+func RuleUsageLocal(res *apiserver.OCRText) (string,string,string,string,string,string,string,string,string){
 	log.Println(res.JustText())
 
 	// Rules

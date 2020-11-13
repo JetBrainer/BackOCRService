@@ -1,7 +1,6 @@
 package apiserver
 
 import (
-	"github.com/JetBrainer/BackOCRService/internal/app/model"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog"
 	"net/http"
@@ -9,9 +8,10 @@ import (
 )
 
 type server struct {
-	router *mux.Router
-	logger zerolog.Logger
-	config Config
+	router  *mux.Router
+	logger  zerolog.Logger
+	config  *Config
+	OCRRule *OCRText
 }
 
 func newServer() *server{
@@ -48,11 +48,10 @@ func (s *server) getDocHandler() http.HandlerFunc{
 			http.Error(w,err.Error(),http.StatusBadRequest)
 		}
 		// Send Request to another Api and get text result
-		res, err := s.config.ParseFromLocal(r.Body)
+		err = s.config.ParseFromPost(r.Body, s.OCRRule)
 		if err != nil{
 			s.logger.Err(err).Msg("Error parsing from Local")
 		}
 
-		model.RuleUsageLocal(res)
 	}
 }

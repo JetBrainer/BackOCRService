@@ -12,7 +12,7 @@ import (
 )
 
 // Parse data from URL
-func (c Config) ParseFromURL(fileURL string) (OCRText, error){
+func (c *Config) ParseFromURL(fileURL string) (OCRText, error){
 	var results OCRText
 	resp, err := http.PostForm(c.Url, url.Values{
 		"url": 							{fileURL},
@@ -41,7 +41,7 @@ func (c Config) ParseFromURL(fileURL string) (OCRText, error){
 }
 
 // Parse to OCR From Base64
-func (c Config) ParseFromBase64(baseString string) (OCRText, error){
+func (c *Config) ParseFromBase64(baseString string) (OCRText, error){
 	var results OCRText
 	resp, err := http.PostForm(c.Url, url.Values{
 		"base64Image":					{baseString},
@@ -71,8 +71,7 @@ func (c Config) ParseFromBase64(baseString string) (OCRText, error){
 }
 
 // Parse Local Files
-func (c Config)ParseFromLocal (Rbody io.Reader) (OCRText,error){
-	var results OCRText
+func (c *Config)ParseFromPost(Rbody io.Reader,results *OCRText) error{
 	params := map[string]string{
 		"language":					c.Language,
 		"apikey":					c.ApiKey,
@@ -91,7 +90,7 @@ func (c Config)ParseFromLocal (Rbody io.Reader) (OCRText,error){
 	}
 	err := writer.Close()
 	if err != nil{
-		return results,err
+		return err
 	}
 
 	req, err := http.NewRequest(http.MethodPost,c.Url,Rbody)
@@ -106,18 +105,18 @@ func (c Config)ParseFromLocal (Rbody io.Reader) (OCRText,error){
 		body := &bytes.Buffer{}
 		_, err := body.ReadFrom(response.Body)
 		if err != nil{
-			return results,err
+			return err
 		}
 		response.Body.Close()
 		err = json.Unmarshal(body.Bytes(),&results)
 		if err != nil{
-			return results,err
+			return err
 		}
 	}
-	return results, nil
+	return nil
 }
 
-func (ocr OCRText) JustText() string{
+func (ocr *OCRText) JustText() string{
 	text := ""
 	if ocr.IsErroredOnProcessing{
 		for _, page := range ocr.ErrorMessage{
