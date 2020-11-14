@@ -1,0 +1,42 @@
+basePath: /
+consumes:
+- application/json
+info:
+  description: Documentation for Document API
+  title: of Document API
+  version: 1.0.0
+paths:
+  /:
+    post:
+      description: |-
+        Returns particular document field
+        responses
+        200: docResponse
+      operationId: base64
+      tags:
+      - document
+produces:
+- application/json
+responses:
+  docResponse:
+    description: A list of document values returns in the response
+    headers:
+      amount_of:
+        type: string
+      full_price:
+        type: string
+      payer:
+        type: string
+      prod:
+        type: string
+      producer:
+        type: string
+      requis:
+        type: string
+      signed:
+        type: string
+      sum_n_tax:
+        type: string
+schemes:
+- http
+swagger: "2.0"

@@ -41,10 +41,18 @@ func main(){
 
 
 	// Server Shutdown
-	defer serv.Shutdown(ctx)
+	defer func() {
+		if err := serv.Shutdown(ctx); err != nil{
+			log.Info().Msg("Server Shutdown error")
+		}
+	}()
 
 	// Database Close
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil{
+			log.Info().Msg("Error db closing")
+		}
+	}()
 
 	// Signal
 	handleSignals()

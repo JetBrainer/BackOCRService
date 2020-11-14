@@ -1,8 +1,23 @@
+// Package classification of Document API
+//
+// Documentation for Document API
+//
+//  Schemes: http
+//  BasePath: /
+//  Version: 1.0.0
+//
+//  Consumes:
+//  - application/json
+//
+//  Produces:
+//  - application/json
+// swagger:meta
 package apiserver
 
 import (
 	"encoding/json"
 	"github.com/JetBrainer/BackOCRService/internal/app"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog"
@@ -17,6 +32,23 @@ type server struct {
 	config  *Config
 	//doc		*model.DocStruct
 }
+
+// A list of document values returns in the response
+// swagger:response docResponse
+type docStr struct {
+	// All value is document
+	// in: body
+	DataNum 	string `json:"data_num"`
+	Payer 		string `json:"payer"`
+	Producer 	string `json:"producer"`
+	Requis		string `json:"requis"`
+	SumNTax		string `json:"sum_n_tax"`
+	AmountOf	string `json:"amount_of"`
+	Signed		string `json:"signed"`
+	FullPrice	string `json:"full_price"`
+	Prod		string `json:"prod"`
+}
+
 
 func newServer(config *Config) *server{
 	// Put Log Level to Debug
@@ -42,8 +74,15 @@ func (s *server) ServeHTTP(w http.ResponseWriter,r *http.Request){
 }
 
 func (s *server) configureRouter(){
+
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 	s.router.HandleFunc("/", s.DocJsonHandler()).Methods(http.MethodPost)
+	s.router.HandleFunc("/form",s.getDocHandler()).Methods(http.MethodPost)
+
+	ops := middleware.RedocOpts{SpecURL: "/api/v1/swagger.yaml"}
+	sh := middleware.Redoc(ops, nil)
+	s.router.Handle("/docs",sh)
+	s.router.Handle("/api/v1/swagger.yaml",http.FileServer(http.Dir("./")))
 }
 
 func (s *server) getDocHandler() http.HandlerFunc{
@@ -70,21 +109,17 @@ func (s *server) getDocHandler() http.HandlerFunc{
 	}
 }
 
+// swagger:route POST / document base64
+// Returns particular document field
+// responses
+//	200: docResponse
+
+// Returns values from document
 func (s *server) DocJsonHandler() http.HandlerFunc{
 	type req struct {
 		Base string `json:"base"`
 	}
-	type docStr struct {
-		DataNum 	string `json:"data_num"`
-		Payer 		string `json:"payer"`
-		Producer 	string `json:"producer"`
-		Requis		string `json:"requis"`
-		SumNTax		string `json:"sum_n_tax"`
-		AmountOf	string `json:"amount_of"`
-		Signed		string `json:"signed"`
-		FullPrice	string `json:"full_price"`
-		Prod		string `json:"prod"`
-	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		jValue := &OCRText{}
 		val := &req{}
@@ -112,6 +147,12 @@ func (s *server) DocJsonHandler() http.HandlerFunc{
 			 val8,
 			 val9,
 		}
-		json.NewEncoder(w).Encode(&docstruct)
+		err = json.NewEncoder(w).Encode(&docstruct)
+		if err != nil{
+			s.logger.Print(err)
+			s.logger.Info().Msg("error parsing json")
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }

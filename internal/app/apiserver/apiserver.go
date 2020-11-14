@@ -5,6 +5,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"time"
 )
 
 // Start server
@@ -19,16 +20,19 @@ func Start(config *Config) (*http.Server, *sql.DB){
 	serv := &http.Server{
 		Addr: ":" + config.HttpPort,
 		Handler: r,
+		ReadTimeout: 7 *time.Second,
+		WriteTimeout: 10*time.Second,
+		IdleTimeout: 120*time.Second,
 	}
 	log.Info().Msg("Starting server...")
 
-	//go func() {
-	//	if err := serv.ListenAndServe(); err == http.ErrServerClosed{
-	//		log.Fatal().Err(err).Msg("Server closed")
-	//	}
-	//}()
+	go func() {
+		if err := serv.ListenAndServe(); err == http.ErrServerClosed{
+			log.Fatal().Err(err).Msg("Server closed")
+		}
+	}()
 
-	serv.ListenAndServe()
+
 	return serv, db
 }
 

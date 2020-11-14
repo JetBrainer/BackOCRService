@@ -1,4 +1,7 @@
 BIN := server
+
+swagger:
+	G0111MODULE=off swagger generate spec -o api/v1/swagger.yaml --scan-models
 .PHONY: test
 ## test: runs go test with default values
 test:

@@ -91,7 +91,9 @@ func (c *Config)ParseFromPost(r *http.Request,results *OCRText) error{
 		_ = writer.WriteField(key,val)
 	}
 
-	io.Copy(buf, r.Body)
+	if _,err = io.Copy(buf, r.Body); err != nil{
+		log.Println("Error io Copying our buffer", err)
+	}
 
 	err = writer.Close()
 	if err != nil{
@@ -100,6 +102,9 @@ func (c *Config)ParseFromPost(r *http.Request,results *OCRText) error{
 	}
 
 	req, err := http.NewRequest(http.MethodPost,c.Url,buf)
+	if err != nil{
+		return err
+	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}
@@ -145,7 +150,9 @@ func (c Config) ParseFromLocal(localPath string) (OCRText, error) {
 		return results, err
 	}
 	_, err = io.Copy(part, file)
-
+	if err != nil{
+		return results, err
+	}
 	for key, val := range params {
 		_ = writer.WriteField(key, val)
 	}
@@ -156,6 +163,9 @@ func (c Config) ParseFromLocal(localPath string) (OCRText, error) {
 	}
 
 	req, err := http.NewRequest(http.MethodPost, c.Url, body)
+	if err != nil{
+		return results,err
+	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}

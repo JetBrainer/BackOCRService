@@ -8,6 +8,7 @@ type Config struct {
 	HttpPort string `toml:"port"`
 }
 
+
 func InitConfig() *Config{
 	return &Config{
 		ApiKey:   "SomeKey",
