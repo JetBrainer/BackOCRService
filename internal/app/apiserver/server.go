@@ -109,7 +109,7 @@ func (s *server) getDocHandler() http.HandlerFunc{
 	}
 }
 
-// swagger:route POST / document base64
+// swagger:route POST / document Image in base64 format
 // Returns particular document field
 // responses
 //	200: docResponse
