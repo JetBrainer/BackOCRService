@@ -4,3 +4,4 @@ config/apiserver.toml
 migration-up.sh
 migration-down.sh
 images
+bin

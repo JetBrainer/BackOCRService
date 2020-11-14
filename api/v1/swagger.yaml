@@ -12,9 +12,7 @@ paths:
         Returns particular document field
         responses
         200: docResponse
-      operationId: base64
-      tags:
-      - document
+      operationId: Image
 produces:
 - application/json
 responses:

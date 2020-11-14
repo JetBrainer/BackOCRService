@@ -76,7 +76,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter,r *http.Request){
 func (s *server) configureRouter(){
 
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
-	s.router.HandleFunc("/", s.DocJsonHandler()).Methods(http.MethodPost)
+	s.router.HandleFunc("/image", s.DocJsonHandler()).Methods(http.MethodPost)
 	s.router.HandleFunc("/form",s.getDocHandler()).Methods(http.MethodPost)
 
 	ops := middleware.RedocOpts{SpecURL: "/api/v1/swagger.yaml"}
@@ -109,7 +109,7 @@ func (s *server) getDocHandler() http.HandlerFunc{
 	}
 }
 
-// swagger:route POST / document Image in base64 format
+// swagger:route POST / Image
 // Returns particular document field
 // responses
 //	200: docResponse
