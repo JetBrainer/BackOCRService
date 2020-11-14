@@ -2,11 +2,9 @@ package apiserver
 
 import (
 	"database/sql"
-	"fmt"
+	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"net/http"
-
-	_ "github.com/lib/pq"
 )
 
 // Start server
@@ -23,16 +21,19 @@ func Start(config *Config) (*http.Server, *sql.DB){
 		Handler: r,
 	}
 	log.Info().Msg("Starting server...")
-	go func() {
-		if err := serv.ListenAndServe(); err != nil{
-			log.Fatal().Err(err).Msg("Start server Failed")
-		}
-	}()
+
+	//go func() {
+	//	if err := serv.ListenAndServe(); err == http.ErrServerClosed{
+	//		log.Fatal().Err(err).Msg("Server closed")
+	//	}
+	//}()
+
+	serv.ListenAndServe()
 	return serv, db
 }
 
 func newDB(databaseURL string) (*sql.DB,error){
-	fmt.Println(databaseURL)
+
 	db, err := sql.Open("postgres",databaseURL)
 	if err != nil{
 		return nil, err

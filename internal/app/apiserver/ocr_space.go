@@ -9,6 +9,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 )
 
 // Parse data from URL
@@ -41,8 +43,8 @@ func (c *Config) ParseFromURL(fileURL string) (OCRText, error){
 }
 
 // Parse to OCR From Base64
-func (c *Config) ParseFromBase64(baseString string) (OCRText, error){
-	var results OCRText
+func (c *Config) ParseFromBase64(baseString string, results *OCRText)  error{
+
 	resp, err := http.PostForm(c.Url, url.Values{
 		"base64Image":					{baseString},
 		"language":						{c.Language},
@@ -52,26 +54,27 @@ func (c *Config) ParseFromBase64(baseString string) (OCRText, error){
 		"scale":						{"true"},
 	})
 	if err != nil{
-		return results, err
+		return err
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil{
-		return results, err
+		return err
 	}
 
 	err = json.Unmarshal(body,&results)
 	if err != nil{
-		return results,err
+		return err
 	}
 
-	return results,nil
+	return nil
 }
 
 // Parse Local Files
-func (c *Config)ParseFromPost(Rbody io.Reader,results *OCRText) error{
+func (c *Config)ParseFromPost(r *http.Request,results *OCRText) error{
+	var err error
 	params := map[string]string{
 		"language":					c.Language,
 		"apikey":					c.ApiKey,
@@ -79,21 +82,24 @@ func (c *Config)ParseFromPost(Rbody io.Reader,results *OCRText) error{
 		"scale":					"true",
 	}
 
-	body := &bytes.Buffer{}
-	reqBody, _ := ioutil.ReadAll(Rbody)
-	body.Write(reqBody)
-	writer := multipart.NewWriter(body)
+	buf := &bytes.Buffer{}
+
+	writer := multipart.NewWriter(buf)
 
 
 	for key, val := range params{
 		_ = writer.WriteField(key,val)
 	}
-	err := writer.Close()
+
+	io.Copy(buf, r.Body)
+
+	err = writer.Close()
 	if err != nil{
+		log.Println("Writer error", err)
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost,c.Url,Rbody)
+	req, err := http.NewRequest(http.MethodPost,c.Url,buf)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}
@@ -114,6 +120,63 @@ func (c *Config)ParseFromPost(Rbody io.Reader,results *OCRText) error{
 		}
 	}
 	return nil
+}
+
+func (c Config) ParseFromLocal(localPath string) (OCRText, error) {
+	var results OCRText
+	params := map[string]string{
+		"language":                     c.Language,
+		"apikey":                       c.ApiKey,
+		"isOverlayRequired":            "true",
+		"scale": 						"true",
+	}
+
+	file, err := os.Open(localPath)
+	if err != nil {
+		return results, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	part, err := writer.CreateFormFile("file", filepath.Base(localPath))
+	if err != nil {
+		return results, err
+	}
+	_, err = io.Copy(part, file)
+
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
+	}
+
+	err = writer.Close()
+	if err != nil {
+		return results, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, c.Url, body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	client := &http.Client{}
+	response, err := client.Do(req)
+
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		body := &bytes.Buffer{}
+		_, err := body.ReadFrom(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		response.Body.Close()
+		err = json.Unmarshal(body.Bytes(), &results)
+		if err != nil {
+			return results, err
+		}
+	}
+
+	return results, nil
 }
 
 func (ocr *OCRText) JustText() string{
