@@ -74,6 +74,17 @@ func (s *server) DocJsonHandler() http.HandlerFunc{
 	type req struct {
 		Base string `json:"base"`
 	}
+	type docStr struct {
+		DataNum 	string `json:"data_num"`
+		Payer 		string `json:"payer"`
+		Producer 	string `json:"producer"`
+		Requis		string `json:"requis"`
+		SumNTax		string `json:"sum_n_tax"`
+		AmountOf	string `json:"amount_of"`
+		Signed		string `json:"signed"`
+		FullPrice	string `json:"full_price"`
+		Prod		string `json:"prod"`
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		jValue := &OCRText{}
 		val := &req{}
@@ -90,14 +101,17 @@ func (s *server) DocJsonHandler() http.HandlerFunc{
 		}
 		val1, val2, val3, val4, val5, val6, val7, val8, val9 := app.RuleDocUsage(jValue.JustText())
 
-		log.Info().Msg(val1)
-		log.Info().Msg(val2)
-		log.Info().Msg(val3)
-		log.Info().Msg(val4)
-		log.Info().Msg(val5)
-		log.Info().Msg(val6)
-		log.Info().Msg(val7)
-		log.Info().Msg(val8)
-		log.Info().Msg(val9)
+		docstruct := docStr{
+			 val1,
+			 val2,
+			 val3,
+			 val4,
+			 val5,
+			 val6,
+			 val7,
+			 val8,
+			 val9,
+		}
+		json.NewEncoder(w).Encode(&docstruct)
 	}
 }
