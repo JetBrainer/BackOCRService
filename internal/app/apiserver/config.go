@@ -8,6 +8,21 @@ type Config struct {
 	HttpPort string `toml:"port"`
 }
 
+// A list of document values returns in the response
+// swagger:response docResponse
+type docStr struct {
+	// All value is document
+	// in: body
+	DataNum 	string `json:"data_num"`
+	Payer 		string `json:"payer"`
+	Producer 	string `json:"producer"`
+	Requis		string `json:"requis"`
+	SumNTax		string `json:"sum_n_tax"`
+	AmountOf	string `json:"amount_of"`
+	Signed		string `json:"signed"`
+	FullPrice	string `json:"full_price"`
+	Prod		string `json:"prod"`
+}
 
 func InitConfig() *Config{
 	return &Config{

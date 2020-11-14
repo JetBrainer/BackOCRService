@@ -33,22 +33,6 @@ type server struct {
 	//doc		*model.DocStruct
 }
 
-// A list of document values returns in the response
-// swagger:response docResponse
-type docStr struct {
-	// All value is document
-	// in: body
-	DataNum 	string `json:"data_num"`
-	Payer 		string `json:"payer"`
-	Producer 	string `json:"producer"`
-	Requis		string `json:"requis"`
-	SumNTax		string `json:"sum_n_tax"`
-	AmountOf	string `json:"amount_of"`
-	Signed		string `json:"signed"`
-	FullPrice	string `json:"full_price"`
-	Prod		string `json:"prod"`
-}
-
 
 func newServer(config *Config) *server{
 	// Put Log Level to Debug
@@ -87,12 +71,6 @@ func (s *server) configureRouter(){
 
 func (s *server) getDocHandler() http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Parse MultiPart File
-		//err := r.ParseMultipartForm(32 << 20)
-		//if err != nil{
-		//	http.Error(w,multipart.ErrMessageTooLarge.Error(),http.StatusBadRequest)
-		//}
-
 		jValue := &OCRText{}
 
 		// Send Request to another Api and get text result
