@@ -6,20 +6,23 @@ info:
   title: of Document API
   version: 1.0.0
 paths:
-  /:
+  /image:
     post:
       description: |-
         Returns particular document field
         responses
-        200: docResponse
+        200: docStrRepoResp
+        Returns values from document
       operationId: Image
 produces:
 - application/json
 responses:
-  docResponse:
+  docStrRepoResp:
     description: A list of document values returns in the response
     headers:
       amount_of:
+        type: string
+      data_num:
         type: string
       full_price:
         type: string

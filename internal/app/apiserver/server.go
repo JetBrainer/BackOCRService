@@ -30,9 +30,7 @@ type server struct {
 	router  *mux.Router
 	logger  zerolog.Logger
 	config  *Config
-	//doc		*model.DocStruct
 }
-
 
 func newServer(config *Config) *server{
 	// Put Log Level to Debug
@@ -87,12 +85,10 @@ func (s *server) getDocHandler() http.HandlerFunc{
 	}
 }
 
-// swagger:route POST / Image
+// swagger:route POST /image Image
 // Returns particular document field
 // responses
-//	200: docResponse
-
-// Returns values from document
+//	200: docStrRepoResp
 func (s *server) DocJsonHandler() http.HandlerFunc{
 	type req struct {
 		Base string `json:"base"`
@@ -112,20 +108,11 @@ func (s *server) DocJsonHandler() http.HandlerFunc{
 			s.logger.Err(err).Msg("Error parsing from Local")
 			http.Error(w,err.Error(),http.StatusBadRequest)
 		}
-		val1, val2, val3, val4, val5, val6, val7, val8, val9 := app.RuleDocUsage(jValue.JustText())
 
-		docstruct := docStr{
-			 val1,
-			 val2,
-			 val3,
-			 val4,
-			 val5,
-			 val6,
-			 val7,
-			 val8,
-			 val9,
-		}
-		err = json.NewEncoder(w).Encode(&docstruct)
+		docStruct := app.DocStr{}
+		docStruct.RuleDocUsage(jValue.JustText())
+
+		err = json.NewEncoder(w).Encode(&docStruct)
 		if err != nil{
 			s.logger.Print(err)
 			s.logger.Info().Msg("error parsing json")
