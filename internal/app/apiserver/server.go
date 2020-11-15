@@ -17,6 +17,7 @@ package apiserver
 import (
 	"encoding/json"
 	"github.com/JetBrainer/BackOCRService/internal/app"
+	"github.com/JetBrainer/BackOCRService/internal/app/store"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -30,9 +31,10 @@ type server struct {
 	router  *mux.Router
 	logger  *zerolog.Logger
 	config  *Config
+	store 	store.Store
 }
 
-func newServer(config *Config) *server{
+func newServer(store store.Store, config *Config) *server{
 	// Put Log Level to Debug
 	//logLevel :=  zerolog.InfoLevel
 	logLevel := zerolog.DebugLevel
@@ -44,6 +46,7 @@ func newServer(config *Config) *server{
 		router: mux.NewRouter(),
 		logger: &logger,
 		config: config,
+		store: store,
 	}
 
 	s.configureRouter()
@@ -58,9 +61,11 @@ func (s *server) ServeHTTP(w http.ResponseWriter,r *http.Request){
 func (s *server) configureRouter(){
 
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
-	s.router.HandleFunc("/image", s.DocJsonHandler()).Methods(http.MethodPost)
+	s.router.HandleFunc("/register",s.createUserHandler()).Methods(http.MethodPost)
+	s.router.HandleFunc("/image", s.docJsonHandler()).Methods(http.MethodPost)
 	s.router.HandleFunc("/form",s.getDocPartFormHandler()).Methods(http.MethodPost)
 
+	// Openapi 2.0 spec generation handler
 	ops := middleware.RedocOpts{SpecURL: "/api/v1/swagger.yaml"}
 	sh := middleware.Redoc(ops, nil)
 	s.router.Handle("/docs",sh)
@@ -89,7 +94,7 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 // Returns particular document field
 // responses
 //	200: docStrRepoResp
-func (s *server) DocJsonHandler() http.HandlerFunc{
+func (s *server) docJsonHandler() http.HandlerFunc{
 	// Our base64 document
 	type req struct {
 		Base string `json:"base"`

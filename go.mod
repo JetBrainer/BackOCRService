@@ -11,6 +11,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.13.0 // indirect
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.8.0
+	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.8.0
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.6.1

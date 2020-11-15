@@ -1,7 +1,6 @@
 package sqlstore_test
 
 import (
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/JetBrainer/BackOCRService/internal/app/model"
 	"github.com/JetBrainer/BackOCRService/internal/app/store/sqlstore"
 	"github.com/stretchr/testify/assert"
@@ -9,43 +8,64 @@ import (
 )
 
 func TestUserRepository_Create(t *testing.T) {
-	db, mock := sqlstore.MockDB(t)
+	db, teardown := sqlstore.TestDB(t, databaseURL)
+	defer teardown("acc")
+	s := sqlstore.New(db)
 
-	user := model.TestUser(t)
-	rdbms := &sqlstore.Store{Db: db}
-	defer func() {
-		rdbms.Db.Close()
-	}()
-
-	if err := user.Validate(); err != nil{
-		t.Fail()
-	}
-	if err := user.BeforeCreate(); err != nil{
-		t.Fail()
-	}
-
-	query := "INSERT INTO acc \\(email,encpassword,organization,token\\) VALUES \\(\\$1,\\$2,\\$3,\\$4\\) RETURNING id"
-
-	prep := mock.ExpectPrepare(query)
-	prep.ExpectExec().
-		WithArgs(user.Email,user.EncryptedPassword,user.Organization,user.Token).
-		WillReturnResult(sqlmock.NewResult(1,1))
-
-	assert.NoError(t,rdbms.User().Create(user))
+	assert.NoError(t,s.User().Create(model.TestUser(t)))
+	assert.NotNil(t, model.TestUser(t))
 }
 
 func TestUserRepository_FindByEmail(t *testing.T) {
+	db, teardown := sqlstore.TestDB(t, databaseURL)
+	defer teardown("acc")
+	s := sqlstore.New(db)
+	u := model.TestUser(t)
 
+	email := "user@example.org"
+	assert.NoError(t,s.User().Create(u))
+	assert.NotNil(t, u)
+
+	_, err := s.User().FindByEmail(email)
+	assert.NoError(t,err)
+	assert.NotNil(t,u)
 }
 
 func TestUserRepository_Find(t *testing.T) {
+	db, teardown := sqlstore.TestDB(t, databaseURL)
+	defer teardown("acc")
+	s := sqlstore.New(db)
+	u := model.TestUser(t)
 
+	assert.NoError(t,s.User().Create(u))
+	assert.NotNil(t, u)
+
+	_, err := s.User().Find(u.ID)
+	assert.NoError(t,err)
+	assert.NotNil(t,u)
 }
 
 func TestUserRepository_UpdateUser(t *testing.T) {
+	db, teardown := sqlstore.TestDB(t, databaseURL)
+	defer teardown("acc")
+	s := sqlstore.New(db)
+	u := model.TestUser(t)
+
+	assert.NoError(t,s.User().Create(u))
+	assert.NotNil(t, u)
+
+	assert.NoError(t,s.User().UpdateUser(u))
 
 }
 
 func TestUserRepository_DeleteHandler(t *testing.T) {
+	db, teardown := sqlstore.TestDB(t, databaseURL)
+	defer teardown("acc")
+	s := sqlstore.New(db)
+	u := model.TestUser(t)
 
+	assert.NoError(t,s.User().Create(u))
+	assert.NotNil(t, u)
+
+	assert.NoError(t,s.User().DeleteUser(u.Email))
 }

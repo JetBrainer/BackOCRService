@@ -5,3 +5,4 @@ migration-up.sh
 migration-down.sh
 images
 bin
+internal/app/store/sqlstore/.env

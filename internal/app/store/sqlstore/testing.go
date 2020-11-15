@@ -2,18 +2,30 @@ package sqlstore
 
 import (
 	"database/sql"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/rs/zerolog/log"
+	"fmt"
+	"strings"
 	"testing"
+
+	_ "github.com/lib/pq"
 )
 
 // Sql mock
-func MockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock){
+func TestDB(t *testing.T, databaseURL string) (*sql.DB, func(...string)){
 	t.Helper()
 
-	db, mock, err := sqlmock.New()
+	db, err := sql.Open("postgres", databaseURL)
 	if err != nil{
-		log.Fatal().Msg("Sql Mock Error")
+		t.Fatal(err)
 	}
-	return db, mock
+	if err := db.Ping(); err != nil{
+		t.Fatal(err)
+	}
+
+	return db, func(tables ...string) {
+		if len(tables)>0{
+			db.Exec(fmt.Sprintf("TRUNCATE %s CASCADE", strings.Join(tables,", ")))
+		}
+
+		db.Close()
+	}
 }
