@@ -2,6 +2,7 @@ package apiserver
 
 import (
 	"database/sql"
+	"github.com/JetBrainer/BackOCRService/internal/app/store/sqlstore"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -16,7 +17,8 @@ func Start(config *Config) (*http.Server, *sql.DB){
 		log.Error().Msg("Database URL ERROR")
 		return nil, nil
 	}
-	r := newServer(config)
+	store := sqlstore.New(db)
+	r := newServer(store,config)
 	serv := &http.Server{
 		Addr: ":" + config.HttpPort,
 		Handler: r,
