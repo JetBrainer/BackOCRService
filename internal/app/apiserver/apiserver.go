@@ -22,7 +22,6 @@ func Start(config *Config) (*http.Server, *sql.DB){
 		Handler: r,
 		ReadTimeout: 7 *time.Second,
 		WriteTimeout: 10*time.Second,
-		IdleTimeout: 120*time.Second,
 	}
 	log.Info().Msg("Starting server...")
 
