@@ -1,0 +1,88 @@
+package sqlstore
+
+import (
+	"database/sql"
+	"errors"
+	"github.com/JetBrainer/BackOCRService/internal/app/model"
+)
+
+// User Repo for db work
+type UserRepository struct {
+	store *Store
+}
+
+// Create User
+func (r *UserRepository) Create(u *model.User) error{
+	// Validation of User
+	if err := u.Validate(); err != nil{
+		return err
+	}
+
+	// Encryption Password
+	if err := u.BeforeCreate(); err != nil{
+		return err
+	}
+
+	// Generate Token for user
+	u.Token = model.TokenGenerator()
+
+	return r.store.db.QueryRow(
+		"INSERT INTO acc(email,password,organization,token) VALUES ($1,$2,$3,$4) RETURNING id",
+		u.Email,u.EncryptedPassword,u.Organization,u.Token).Scan(&u.ID)
+}
+
+// Find By Email
+func (r *UserRepository) FindByEmail(email string)(*model.User,error){
+	u := &model.User{}
+
+	if err := r.store.db.QueryRow(
+		"SELECT id,email,password,organization,token FROM acc WHERE email=$1",email).
+		Scan(&u.ID,&u.Email,&u.Password,&u.Organization,&u.Token);
+	err != nil{
+		if err == sql.ErrNoRows{
+			return nil, errors.New("SQL NO ROWS")
+		}
+		return nil, err
+	}
+
+	return u, nil
+}
+
+// Find by id
+func (r *UserRepository) Find(id int) (*model.User,error){
+	u := &model.User{}
+	if err := r.store.db.QueryRow(
+		"SELECT id,email,password,organization,token FROM acc WHERE id=$1",id).
+		Scan(&u.ID,&u.Email,&u.Password,&u.Organization,&u.Token);
+		err != nil{
+		if err == sql.ErrNoRows{
+			return nil, errors.New("SQL NO ROWS")
+		}
+		return nil, err
+	}
+
+	return u, nil
+}
+
+// Updated User
+func (r *UserRepository) UpdateUser(u *model.User) error{
+	if err := u.Validate(); err != nil{
+		return err
+	}
+	if err := u.BeforeCreate(); err != nil{
+		return err
+	}
+
+	return r.store.db.QueryRow(
+		"UPDATE acc SET password=$1 WHERE email=$2 RETURNING id",u.EncryptedPassword,u.Email).
+		Scan(&u.ID)
+}
+
+// Delete User
+func (r *UserRepository) DeleteHandler(email string) error{
+	_, err := r.store.db.Exec("DELETE FROM acc WHERE email = $1",email)
+	if err != nil{
+		return err
+	}
+	return nil
+}

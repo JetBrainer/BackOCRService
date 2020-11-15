@@ -28,7 +28,7 @@ import (
 
 type server struct {
 	router  *mux.Router
-	logger  zerolog.Logger
+	logger  *zerolog.Logger
 	config  *Config
 }
 
@@ -42,7 +42,7 @@ func newServer(config *Config) *server{
 	// Configure Router
 	s := &server{
 		router: mux.NewRouter(),
-		logger: logger,
+		logger: &logger,
 		config: config,
 	}
 

@@ -7,7 +7,7 @@ import (
 	"regexp"
 )
 
-// Registrated user
+// Register user struct
 type User struct {
 	ID					int
 	Email				string
@@ -26,7 +26,7 @@ func (u *User) Validate() error{
 			validation.Match(regexp.MustCompile("^[A-Z]"))))
 }
 
-//
+// Before create we check that password is encrypted
 func (u *User) BeforeCreate() error{
 	if len(u.Password) > 0{
 		enc, err := encryptString(u.Password)
@@ -39,6 +39,7 @@ func (u *User) BeforeCreate() error{
 	return nil
 }
 
+// Encrypting password
 func encryptString(s string) (string, error){
 	b, err := bcrypt.GenerateFromPassword([]byte(s), bcrypt.MinCost)
 	if err != nil{
