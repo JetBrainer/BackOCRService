@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/JetBrainer/BackOCRService/internal/app/model"
+	"github.com/rs/zerolog/log"
 )
 
 // User Repo for db work
@@ -15,11 +16,13 @@ type UserRepository struct {
 func (r *UserRepository) Create(u *model.User) error{
 	// Validation of User
 	if err := u.Validate(); err != nil{
+		log.Info().Msg("Validation ERROR")
 		return err
 	}
 
 	// Encryption Password
 	if err := u.BeforeCreate(); err != nil{
+		log.Info().Msg("Before create ERROR")
 		return err
 	}
 

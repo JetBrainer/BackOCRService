@@ -46,7 +46,7 @@ func newServer(store store.Store, config *Config) *server{
 		router: mux.NewRouter(),
 		logger: &logger,
 		config: config,
-		store: store,
+		store: 	store,
 	}
 
 	s.configureRouter()
