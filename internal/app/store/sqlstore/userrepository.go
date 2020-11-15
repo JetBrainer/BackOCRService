@@ -26,8 +26,8 @@ func (r *UserRepository) Create(u *model.User) error{
 	// Generate Token for user
 	u.Token = model.TokenGenerator()
 
-	return r.store.db.QueryRow(
-		"INSERT INTO acc(email,password,organization,token) VALUES ($1,$2,$3,$4) RETURNING id",
+	return r.store.Db.QueryRow(
+		"INSERT INTO acc(email,encpassword,organization,token) VALUES ($1,$2,$3,$4) RETURNING id",
 		u.Email,u.EncryptedPassword,u.Organization,u.Token).Scan(&u.ID)
 }
 
@@ -35,8 +35,8 @@ func (r *UserRepository) Create(u *model.User) error{
 func (r *UserRepository) FindByEmail(email string)(*model.User,error){
 	u := &model.User{}
 
-	if err := r.store.db.QueryRow(
-		"SELECT id,email,password,organization,token FROM acc WHERE email=$1",email).
+	if err := r.store.Db.QueryRow(
+		"SELECT id,email,encpassword,organization,token FROM acc WHERE email=$1",email).
 		Scan(&u.ID,&u.Email,&u.Password,&u.Organization,&u.Token);
 	err != nil{
 		if err == sql.ErrNoRows{
@@ -51,8 +51,8 @@ func (r *UserRepository) FindByEmail(email string)(*model.User,error){
 // Find by id
 func (r *UserRepository) Find(id int) (*model.User,error){
 	u := &model.User{}
-	if err := r.store.db.QueryRow(
-		"SELECT id,email,password,organization,token FROM acc WHERE id=$1",id).
+	if err := r.store.Db.QueryRow(
+		"SELECT id,email,encpassword,organization,token FROM acc WHERE id=$1",id).
 		Scan(&u.ID,&u.Email,&u.Password,&u.Organization,&u.Token);
 		err != nil{
 		if err == sql.ErrNoRows{
@@ -73,14 +73,14 @@ func (r *UserRepository) UpdateUser(u *model.User) error{
 		return err
 	}
 
-	return r.store.db.QueryRow(
-		"UPDATE acc SET password=$1 WHERE email=$2 RETURNING id",u.EncryptedPassword,u.Email).
+	return r.store.Db.QueryRow(
+		"UPDATE acc SET encpassword=$1 WHERE email=$2 RETURNING id",u.EncryptedPassword,u.Email).
 		Scan(&u.ID)
 }
 
 // Delete User
-func (r *UserRepository) DeleteHandler(email string) error{
-	_, err := r.store.db.Exec("DELETE FROM acc WHERE email = $1",email)
+func (r *UserRepository) DeleteUser(email string) error{
+	_, err := r.store.Db.Exec("DELETE FROM acc WHERE email = $1",email)
 	if err != nil{
 		return err
 	}

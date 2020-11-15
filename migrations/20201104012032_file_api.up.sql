@@ -1,7 +1,7 @@
 CREATE TABLE acc(
     id              SERIAL PRIMARY KEY,
     email           VARCHAR UNIQUE,
-    password        VARCHAR,
+    encpassword     VARCHAR,
     organization    VARCHAR,
     token           VARCHAR
 )

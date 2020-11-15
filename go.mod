@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/go-openapi/runtime v0.19.23
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/golang-migrate/migrate v3.5.4+incompatible // indirect
