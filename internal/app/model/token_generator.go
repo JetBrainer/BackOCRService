@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Token generator for user companies
 func TokenGenerator() string{
 	b := make([]byte,8)
 	_, err := rand.Read(b)

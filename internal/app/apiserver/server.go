@@ -59,7 +59,7 @@ func (s *server) configureRouter(){
 
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 	s.router.HandleFunc("/image", s.DocJsonHandler()).Methods(http.MethodPost)
-	s.router.HandleFunc("/form",s.getDocHandler()).Methods(http.MethodPost)
+	s.router.HandleFunc("/form",s.getDocPartFormHandler()).Methods(http.MethodPost)
 
 	ops := middleware.RedocOpts{SpecURL: "/api/v1/swagger.yaml"}
 	sh := middleware.Redoc(ops, nil)
@@ -67,7 +67,7 @@ func (s *server) configureRouter(){
 	s.router.Handle("/api/v1/swagger.yaml",http.FileServer(http.Dir("./")))
 }
 
-func (s *server) getDocHandler() http.HandlerFunc{
+func (s *server) getDocPartFormHandler() http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request) {
 		jValue := &OCRText{}
 
@@ -90,10 +90,10 @@ func (s *server) getDocHandler() http.HandlerFunc{
 // responses
 //	200: docStrRepoResp
 func (s *server) DocJsonHandler() http.HandlerFunc{
+	// Our base64 document
 	type req struct {
 		Base string `json:"base"`
 	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
 		jValue := &OCRText{}
 		val := &req{}
@@ -109,6 +109,7 @@ func (s *server) DocJsonHandler() http.HandlerFunc{
 			http.Error(w,err.Error(),http.StatusBadRequest)
 		}
 
+		// Document structure and we parse text to it
 		docStruct := app.DocStr{}
 		docStruct.RuleDocUsage(jValue.JustText())
 

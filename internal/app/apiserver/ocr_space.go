@@ -127,7 +127,7 @@ func (c *Config)ParseFromPost(r *http.Request,results *OCRText) error{
 	return nil
 }
 
-func (c Config) ParseFromLocal(localPath string) (OCRText, error) {
+func (c *Config) ParseFromLocal(localPath string) (OCRText, error) {
 	var results OCRText
 	params := map[string]string{
 		"language":                     c.Language,
