@@ -17,8 +17,6 @@ type DocStr struct {
 }
 
 func (d *DocStr)RuleDocUsage(text string) {
-	//invAndDate := &model.DocStruct{InvNumAndData:"fbsdofbsdoifoid"}
-	//invAndDate.Match(jValue.JustText())
 
 	invAndData := model.InvNumAndData("(....|....(\\s|\\s\\s)..(\\s|\\s\\s).{4,5}.)(\\s|\\s\\s)N.(\\s|\\s\\s)[0-9]{2,4}(\\s|\\s\\s)..(\\s|\\s\\s)[1-3][1-9]((\\s|\\s\\s)\\D{3,8}|\\.(0|1)[1-2]\\.)(\\d{4}|\\d{2})")
 	d.DataNum = invAndData.Match(text)

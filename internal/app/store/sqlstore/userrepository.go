@@ -39,8 +39,8 @@ func (r *UserRepository) FindByEmail(email string)(*model.User,error){
 	u := &model.User{}
 
 	if err := r.store.Db.QueryRow(
-		"SELECT id,email,encpassword,organization,token FROM acc WHERE email=$1",email).
-		Scan(&u.ID,&u.Email,&u.Password,&u.Organization,&u.Token);
+		"SELECT id,email,organization,token FROM acc WHERE email=$1",email).
+		Scan(&u.ID,&u.Email,&u.Organization,&u.Token);
 	err != nil{
 		if err == sql.ErrNoRows{
 			return nil, errors.New("SQL NO ROWS")
@@ -58,9 +58,9 @@ func (r *UserRepository) Find(id int) (*model.User,error){
 		"SELECT id,email,encpassword,organization,token FROM acc WHERE id=$1",id).
 		Scan(&u.ID,&u.Email,&u.Password,&u.Organization,&u.Token);
 		err != nil{
-		if err == sql.ErrNoRows{
-			return nil, errors.New("SQL NO ROWS")
-		}
+			if err == sql.ErrNoRows{
+				return nil, errors.New("SQL NO ROWS")
+			}
 		return nil, err
 	}
 
@@ -85,6 +85,18 @@ func (r *UserRepository) UpdateUser(u *model.User) error{
 func (r *UserRepository) DeleteUser(email string) error{
 	_, err := r.store.Db.Exec("DELETE FROM acc WHERE email = $1",email)
 	if err != nil{
+		return err
+	}
+	return nil
+}
+
+// Check Token
+func (r *UserRepository) CheckToken(Token string) error{
+	if _,err := r.store.Db.Exec(
+		"SELECT token FROM acc WHERE token=$1", Token); err != nil{
+		if err == sql.ErrNoRows{
+			return errors.New("SQL NO ROWS")
+		}
 		return err
 	}
 	return nil

@@ -8,4 +8,5 @@ type UserRepository interface {
 	Find(int)				(*model.User,error)
 	UpdateUser(*model.User) error
 	DeleteUser(string) 		error
+	CheckToken(string)		error
 }

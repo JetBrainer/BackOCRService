@@ -69,3 +69,15 @@ func TestUserRepository_DeleteHandler(t *testing.T) {
 
 	assert.NoError(t,s.User().DeleteUser(u.Email))
 }
+
+func TestUserRepository_CheckToken(t *testing.T) {
+	db, teardown := sqlstore.TestDB(t, databaseURL)
+	defer teardown("acc")
+	s := sqlstore.New(db)
+	u := model.TestUser(t)
+
+	assert.NoError(t,s.User().Create(u))
+	assert.NotNil(t, u)
+
+	assert.NoError(t,s.User().CheckToken(u.Token))
+}

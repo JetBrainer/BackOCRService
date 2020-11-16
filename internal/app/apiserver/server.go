@@ -36,7 +36,7 @@ type server struct {
 
 func newServer(store store.Store, config *Config) *server{
 	// Put Log Level to Debug
-	//logLevel :=  zerolog.InfoLevel
+
 	logLevel := zerolog.DebugLevel
 	zerolog.SetGlobalLevel(logLevel)
 	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
@@ -74,6 +74,11 @@ func (s *server) configureRouter(){
 
 func (s *server) getDocPartFormHandler() http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseMultipartForm(20<<20); err != nil{
+			http.Error(w,"Error Parsing Image", http.StatusBadRequest)
+			return
+		}
+
 		jValue := &OCRText{}
 
 		// Send Request to another Api and get text result
@@ -97,7 +102,8 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 func (s *server) docJsonHandler() http.HandlerFunc{
 	// Our base64 document
 	type req struct {
-		Base string `json:"base"`
+		Token string `json:"token"`
+		Base  string `json:"base"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		jValue := &OCRText{}
@@ -105,6 +111,12 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		err := json.NewDecoder(r.Body).Decode(&val)
 		if err != nil{
 			log.Info().Msg("Unmarshal error")
+		}
+
+		err = s.store.User().CheckToken(val.Token)
+		if err != nil{
+			http.Error(w,"Invalid Token",http.StatusBadRequest)
+			return
 		}
 
 		// Send JSON request
