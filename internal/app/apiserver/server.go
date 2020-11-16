@@ -98,7 +98,7 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 // swagger:route POST /image Image
 // Returns particular document field
 // responses
-//	200: docStrRepoResp
+//	200: docStruct
 func (s *server) docJsonHandler() http.HandlerFunc{
 	// Our base64 document
 	type req struct {

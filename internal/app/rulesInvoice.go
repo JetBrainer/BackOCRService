@@ -1,4 +1,4 @@
-package model
+package app
 
 import (
 	"regexp"
@@ -15,7 +15,6 @@ type InvNumAndData string
 // result due to pattern
 func (in *InvNumAndData)Match(text string) string {
 	matched := regexp.MustCompile(string(*in)).FindString(text)
-
 	return matched
 }
 
