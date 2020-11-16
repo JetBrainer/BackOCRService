@@ -1,4 +1,4 @@
-package model
+package rotationDocument
 
 import (
 	"log"

@@ -4,9 +4,6 @@ import (
 	"regexp"
 )
 
-type Docs interface{
-	Match(string) string
-}
 
 // Shows us invoiceNum and Data
 type InvNumAndData string

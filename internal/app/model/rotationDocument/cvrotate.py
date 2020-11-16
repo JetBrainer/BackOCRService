@@ -59,6 +59,6 @@ def deskew(im, max_skew=10):
     im = cv2.warpAffine(im, M, (width, height), borderMode=cv2.BORDER_REPLICATE)
     return im
 
-img_before = cv2.imread(r'/home/somatic/github.com/JetBrainer/BackOCRService/images/photo_2020-11-08_22-15-43.jpg')
+img_before = cv2.imread(r'/images/photo_2020-11-08_22-15-43.jpg')
 
-cv2.imwrite(r'/home/somatic/github.com/JetBrainer/BackOCRService/images/photo_2020-11-08_22-15-43.jpg', deskew(img_before))
+cv2.imwrite(r'/images/photo_2020-11-08_22-15-43.jpg', deskew(img_before))
