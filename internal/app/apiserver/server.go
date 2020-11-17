@@ -1,6 +1,6 @@
 // Package classification of Document API
 //
-// Documentation for Document API
+// Documentation for Document Intelligent Character Recognition API
 //
 //  Schemes: http
 //  BasePath: /
@@ -74,15 +74,12 @@ func (s *server) configureRouter(){
 
 func (s *server) getDocPartFormHandler() http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseMultipartForm(20<<20); err != nil{
-			http.Error(w,"Error Parsing Image", http.StatusBadRequest)
-			return
-		}
+		var err error
 
 		jValue := &OCRText{}
 
 		// Send Request to another Api and get text result
-		err := s.config.ParseFromPost(r, jValue)
+		err = s.config.ParseFromPost(r.Body, jValue)
 		if err != nil{
 			s.logger.Err(err).Msg("Error parsing from Local")
 			http.Error(w,err.Error(),http.StatusBadRequest)
@@ -95,10 +92,12 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 	}
 }
 
-// swagger:route POST /image Image
+// swagger:route POST /image image
 // Returns particular document field
-// responses
-//	200: docStruct
+// responses:
+//	200: docResponse
+
+// Get JSON base64 image
 func (s *server) docJsonHandler() http.HandlerFunc{
 	// Our base64 document
 	type req struct {
@@ -138,4 +137,12 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 
 		w.WriteHeader(http.StatusOK)
 	}
+}
+
+// Your Invoice structure
+// swagger:response docResponse
+type docResponse struct {
+	// recognized fields
+	// in: body
+	Body []app.DocStr
 }

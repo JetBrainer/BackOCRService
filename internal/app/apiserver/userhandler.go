@@ -7,16 +7,13 @@ import (
 	"net/http"
 )
 
+// swagger:route POST /register register
+// Returns Id and Token for OCR
+// responses:
+//  200: tokenResponse
+
+// Creates User
 func (s *server) createUserHandler() http.HandlerFunc{
-	type request struct {
-		Email 			string `json:"email"`
-		Password		string `json:"password"`
-		Organization	string `json:"organization"`
-	}
-	type response struct {
-		ID		int 	`json:"id"`
-		Token	string 	`json:"token"`
-	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil{
@@ -45,6 +42,24 @@ func (s *server) createUserHandler() http.HandlerFunc{
 			s.logger.Info().Msg("Error JSON Encode")
 		}
 	}
+}
+
+// ID and Token
+// swagger:response tokenResponse
+type tokenResponse struct {
+	// Token of user
+	// in: body
+	Body []response
+}
+
+type request struct {
+	Email 			string `json:"email"`
+	Password		string `json:"password"`
+	Organization	string `json:"organization"`
+}
+type response struct {
+	ID		int 	`json:"id"`
+	Token	string 	`json:"token"`
 }
 
 func (s *server) handleUserDelete() http.HandlerFunc{

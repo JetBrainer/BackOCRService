@@ -1,43 +1,83 @@
 basePath: /
 consumes:
 - application/json
+definitions:
+  DocStr:
+    properties:
+      amount_of:
+        type: string
+        x-go-name: AmountOf
+      data_num:
+        type: string
+        x-go-name: DataNum
+      full_price:
+        type: string
+        x-go-name: FullPrice
+      payer:
+        type: string
+        x-go-name: Payer
+      prod:
+        type: string
+        x-go-name: Prod
+      producer:
+        type: string
+        x-go-name: Producer
+      requis:
+        type: string
+        x-go-name: Requis
+      signed:
+        type: string
+        x-go-name: Signed
+      sum_n_tax:
+        type: string
+        x-go-name: SumNTax
+    type: object
+    x-go-package: github.com/JetBrainer/BackOCRService/internal/app
+  response:
+    properties:
+      id:
+        format: int64
+        type: integer
+        x-go-name: ID
+      token:
+        type: string
+        x-go-name: Token
+    type: object
+    x-go-package: github.com/JetBrainer/BackOCRService/internal/app/apiserver
 info:
-  description: Documentation for Document API
+  description: Documentation for Document Intelligent Character Recognition API
   title: of Document API
   version: 1.0.0
 paths:
   /image:
     post:
-      description: |-
-        Returns particular document field
-        responses
-        200: docStrRepoResp
-        Returns values from document
-      operationId: Image
+      description: Returns particular document field
+      operationId: image
+      responses:
+        "200":
+          $ref: '#/responses/docResponse'
+  /register:
+    post:
+      description: Returns Id and Token for OCR
+      operationId: register
+      responses:
+        "200":
+          $ref: '#/responses/tokenResponse'
 produces:
 - application/json
 responses:
-  docStrRepoResp:
-    description: A list of document values returns in the response
-    headers:
-      amount_of:
-        type: string
-      data_num:
-        type: string
-      full_price:
-        type: string
-      payer:
-        type: string
-      prod:
-        type: string
-      producer:
-        type: string
-      requis:
-        type: string
-      signed:
-        type: string
-      sum_n_tax:
-        type: string
+  docResponse:
+    description: Your Invoice structure
+    schema:
+      items:
+        $ref: '#/definitions/DocStr'
+      type: array
+  tokenResponse:
+    description: ID and Token
+    schema:
+      items:
+        $ref: '#/definitions/response'
+      type: array
 schemes:
 - http
 swagger: "2.0"

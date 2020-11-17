@@ -3,6 +3,7 @@ package apiserver
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/google/uuid"
 	"io"
 	"io/ioutil"
 	"log"
@@ -73,7 +74,7 @@ func (c *Config) ParseFromBase64(baseString string, results *OCRText)  error{
 }
 
 // Parse Local Files
-func (c *Config)ParseFromPost(r *http.Request,results *OCRText) error{
+func (c *Config)ParseFromPost(r io.Reader,results *OCRText) error{
 	var err error
 	params := map[string]string{
 		"language":					c.Language,
@@ -82,26 +83,32 @@ func (c *Config)ParseFromPost(r *http.Request,results *OCRText) error{
 		"scale":					"true",
 	}
 
-	buf := &bytes.Buffer{}
+	newid := uuid.New().String()
+	file, err := os.Create(newid+".jpg")
+	defer os.Remove(file.Name())
 
-	writer := multipart.NewWriter(buf)
+	fileOpen, _ := os.Open(file.Name())
+	defer fileOpen.Close()
 
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
 
-	for key, val := range params{
-		_ = writer.WriteField(key,val)
+	part, err := writer.CreateFormFile("file", fileOpen.Name())
+	if err != nil {
+		return err
 	}
-
-	if _,err = io.Copy(buf, r.Body); err != nil{
-		log.Println("Error io Copying our buffer", err)
+	_, err = io.Copy(part, file)
+	if err != nil{
+		return err
+	}
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
 	}
 
 	err = writer.Close()
-	if err != nil{
-		log.Println("Writer error", err)
-		return err
-	}
 
-	req, err := http.NewRequest(http.MethodPost,c.Url,buf)
+
+	req, err := http.NewRequest(http.MethodPost,c.Url,body)
 	if err != nil{
 		return err
 	}
@@ -113,13 +120,8 @@ func (c *Config)ParseFromPost(r *http.Request,results *OCRText) error{
 	if err != nil{
 		log.Fatal(err)
 	} else{
-		body := &bytes.Buffer{}
-		_, err := body.ReadFrom(response.Body)
-		if err != nil{
-			return err
-		}
-		response.Body.Close()
-		err = json.Unmarshal(body.Bytes(),&results)
+		defer response.Body.Close()
+		err = json.NewDecoder(response.Body).Decode(&results)
 		if err != nil{
 			return err
 		}
@@ -150,7 +152,7 @@ func (c *Config) ParseFromLocal(localPath string) (OCRText, error) {
 		return results, err
 	}
 	_, err = io.Copy(part, file)
-	if err != nil{
+	if err != nil {
 		return results, err
 	}
 	for key, val := range params {

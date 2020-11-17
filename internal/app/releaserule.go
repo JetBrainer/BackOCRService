@@ -1,5 +1,6 @@
 package app
 
+
 type DocStr struct {
 	DataNum 	string `json:"data_num"`
 	Payer 		string `json:"payer"`
