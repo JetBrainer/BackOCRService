@@ -33,6 +33,17 @@ definitions:
         x-go-name: SumNTax
     type: object
     x-go-package: github.com/JetBrainer/BackOCRService/internal/app
+  req:
+    description: Our base64 document
+    properties:
+      base:
+        type: string
+        x-go-name: Base
+      token:
+        type: string
+        x-go-name: Token
+    type: object
+    x-go-package: github.com/JetBrainer/BackOCRService/internal/app/apiserver
   response:
     properties:
       id:
@@ -45,7 +56,7 @@ definitions:
     type: object
     x-go-package: github.com/JetBrainer/BackOCRService/internal/app/apiserver
 info:
-  description: Documentation for Document Intelligent Character Recognition API
+  description: Documentation for Enterprise Intelligent Character Recognition API
   title: of Document API
   version: 1.0.0
 paths:

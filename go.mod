@@ -4,11 +4,9 @@ go 1.15
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/go-openapi/runtime v0.19.23
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/golang-migrate/migrate v3.5.4+incompatible // indirect
-	github.com/golang-migrate/migrate/v4 v4.13.0 // indirect
+	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.8.0
@@ -17,4 +15,7 @@ require (
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9
+	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc // indirect
+	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )

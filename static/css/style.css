@@ -1,0 +1,19 @@
+header{
+
+}
+body{
+    background-image: url("../images/gopher.png");
+    background-repeat: no-repeat;
+    background-size: 700px 700px;
+    background-position: center top;
+    background-color: darkkhaki;
+}
+
+.w3-bar{
+    color: black;
+    display: inline-block;
+    float: right;
+}
+
+
+

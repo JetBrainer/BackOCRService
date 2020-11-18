@@ -3,6 +3,6 @@ config/apiserver.toml
 .env
 migration-up.sh
 migration-down.sh
-images
+photo
 bin
 internal/app/store/sqlstore/.env

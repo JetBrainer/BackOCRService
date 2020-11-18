@@ -1,6 +1,6 @@
 // Package classification of Document API
 //
-// Documentation for Document Intelligent Character Recognition API
+// Documentation for Enterprise Intelligent Character Recognition API
 //
 //  Schemes: http
 //  BasePath: /
@@ -23,6 +23,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"html/template"
 	"net/http"
 	"os"
 )
@@ -61,6 +62,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter,r *http.Request){
 func (s *server) configureRouter(){
 
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
+
 	s.router.HandleFunc("/register",s.createUserHandler()).Methods(http.MethodPost)
 	s.router.HandleFunc("/image", s.docJsonHandler()).Methods(http.MethodPost)
 	s.router.HandleFunc("/form",s.getDocPartFormHandler()).Methods(http.MethodPost)
@@ -70,6 +72,13 @@ func (s *server) configureRouter(){
 	sh := middleware.Redoc(ops, nil)
 	s.router.Handle("/docs",sh)
 	s.router.Handle("/api/v1/swagger.yaml",http.FileServer(http.Dir("./")))
+
+	s.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("static/menu.html"))
+		tmpl.Execute(w,nil)
+	})
+	s.router.PathPrefix("/").
+		Handler(http.FileServer(http.Dir("./static")))
 }
 
 func (s *server) getDocPartFormHandler() http.HandlerFunc{
@@ -85,10 +94,9 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 			http.Error(w,err.Error(),http.StatusBadRequest)
 		}
 		defer r.Body.Close()
-		//s.logger.Info().Msg(jValue.JustText())
-		//val := app.RuleDocUsage(jValue.JustText())
-		//s.logger.Info().Msg(val)
 		s.logger.Info().Msg(jValue.JustText())
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -99,17 +107,13 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 
 // Get JSON base64 image
 func (s *server) docJsonHandler() http.HandlerFunc{
-	// Our base64 document
-	type req struct {
-		Token string `json:"token"`
-		Base  string `json:"base"`
-	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		jValue := &OCRText{}
 		val := &req{}
 		err := json.NewDecoder(r.Body).Decode(&val)
 		if err != nil{
 			log.Info().Msg("Unmarshal error")
+			return
 		}
 
 		err = s.store.User().CheckToken(val.Token)
@@ -145,4 +149,18 @@ type docResponse struct {
 	// recognized fields
 	// in: body
 	Body []app.DocStr
+}
+
+// Our base64 document
+type req struct {
+	Token string `json:"token"`
+	Base  string `json:"base"`
+}
+
+// Get data for you
+// swagger:parameters docRequest
+type docRequest struct {
+	// Need data
+	// in: body
+	Body []req
 }

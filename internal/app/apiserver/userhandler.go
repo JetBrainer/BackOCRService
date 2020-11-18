@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+// swagger:operation POST /register register
+// authorize with credentials.
 // swagger:route POST /register register
 // Returns Id and Token for OCR
 // responses:
