@@ -100,8 +100,13 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 	}
 }
 
-// swagger:route POST /image image
+// swagger:route POST /image Image docRequest
 // Returns particular document field
+//
+// Document return
+//
+// Client sends Full Scanned Document and get's every need field
+//
 // responses:
 //	200: docResponse
 
@@ -126,7 +131,7 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		err = s.config.ParseFromBase64(val.Base, jValue)
 		if err != nil{
 			s.logger.Err(err).Msg("Error parsing from Local")
-			http.Error(w,err.Error(),http.StatusBadRequest)
+			http.Error(w,err.Error(),http.StatusUnprocessableEntity)
 		}
 
 		// Document structure and we parse text to it
@@ -154,7 +159,7 @@ type docResponse struct {
 // Our base64 document
 type req struct {
 	Token string `json:"token"`
-	Base  string `json:"base"`
+	Base  string `json:"base64"`
 }
 
 // Get data for you
@@ -162,5 +167,6 @@ type req struct {
 type docRequest struct {
 	// Need data
 	// in: body
-	Body []req
+	// required: true
+	Body req
 }

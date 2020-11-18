@@ -36,12 +36,25 @@ definitions:
   req:
     description: Our base64 document
     properties:
-      base:
+      base64:
         type: string
         x-go-name: Base
       token:
         type: string
         x-go-name: Token
+    type: object
+    x-go-package: github.com/JetBrainer/BackOCRService/internal/app/apiserver
+  request:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      organization:
+        type: string
+        x-go-name: Organization
+      password:
+        type: string
+        x-go-name: Password
     type: object
     x-go-package: github.com/JetBrainer/BackOCRService/internal/app/apiserver
   response:
@@ -62,18 +75,44 @@ info:
 paths:
   /image:
     post:
-      description: Returns particular document field
-      operationId: image
+      description: |-
+        Document return
+
+        Client sends Full Scanned Document and get's every need field
+      operationId: docRequest
+      parameters:
+      - description: Need data
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/req'
       responses:
         "200":
           $ref: '#/responses/docResponse'
+      summary: Returns particular document field
+      tags:
+      - Image
   /register:
     post:
-      description: Returns Id and Token for OCR
-      operationId: register
+      description: |-
+        account
+
+        User creates account to get Token
+      operationId: formCreateReq
+      parameters:
+      - description: form request
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/request'
       responses:
         "200":
           $ref: '#/responses/tokenResponse'
+      summary: Returns Id and Token for OCR
+      tags:
+      - Account
 produces:
 - application/json
 responses:

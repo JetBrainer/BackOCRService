@@ -7,10 +7,13 @@ import (
 	"net/http"
 )
 
-// swagger:operation POST /register register
-// authorize with credentials.
-// swagger:route POST /register register
+// swagger:route POST /register Account formCreateReq
 // Returns Id and Token for OCR
+//
+// account
+//
+// User creates account to get Token
+//
 // responses:
 //  200: tokenResponse
 
@@ -52,6 +55,15 @@ type tokenResponse struct {
 	// Token of user
 	// in: body
 	Body []response
+}
+
+// Request to register your company
+// swagger:parameters formCreateReq
+type formCreateReq struct {
+	// form request
+	// in: body
+	// required: true
+	Body request
 }
 
 type request struct {
