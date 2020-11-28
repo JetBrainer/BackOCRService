@@ -3,6 +3,7 @@ package sqlstore
 import (
 	"database/sql"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"strings"
 	"testing"
 
@@ -23,7 +24,9 @@ func TestDB(t *testing.T, databaseURL string) (*sql.DB, func(...string)){
 
 	return db, func(tables ...string) {
 		if len(tables)>0{
-			db.Exec(fmt.Sprintf("TRUNCATE %s CASCADE", strings.Join(tables,", ")))
+			if _,err := db.Exec(fmt.Sprintf("TRUNCATE %s CASCADE", strings.Join(tables,", "))); err != nil{
+				log.Info().Err(err).Msg("Execution Error")
+			}
 		}
 
 		db.Close()

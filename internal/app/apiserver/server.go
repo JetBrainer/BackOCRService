@@ -16,6 +16,7 @@ package apiserver
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/JetBrainer/BackOCRService/internal/app"
 	"github.com/JetBrainer/BackOCRService/internal/app/store"
 	"github.com/go-openapi/runtime/middleware"
@@ -75,7 +76,9 @@ func (s *server) configureRouter(){
 
 	s.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles("static/menu.html"))
-		tmpl.Execute(w,nil)
+		if err := tmpl.Execute(w,nil); err != nil{
+			s.logger.Err(err).Msg("Error loading template")
+		}
 	})
 	s.router.PathPrefix("/").
 		Handler(http.FileServer(http.Dir("./static")))
@@ -100,7 +103,7 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 	}
 }
 
-// swagger:route POST /image Image docRequest
+// swagger:route POST /image Document docRequest
 // Returns particular document field
 //
 // Document return
@@ -120,6 +123,7 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 			log.Info().Msg("Unmarshal error")
 			return
 		}
+		//key := r.Header.Get("Authorization")
 
 		err = s.store.User().CheckToken(val.Token)
 		if err != nil{
@@ -137,7 +141,7 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		// Document structure and we parse text to it
 		docStruct := app.DocStr{}
 		docStruct.RuleDocUsage(jValue.JustText())
-
+		fmt.Println(jValue.JustText())
 		err = json.NewEncoder(w).Encode(&docStruct)
 		if err != nil{
 			s.logger.Print(err)
@@ -162,7 +166,7 @@ type req struct {
 	Base  string `json:"base64"`
 }
 
-// Get data for you
+// Get data, put your token in header
 // swagger:parameters docRequest
 type docRequest struct {
 	// Need data
