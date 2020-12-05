@@ -125,11 +125,11 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		}
 		//key := r.Header.Get("Authorization")
 
-		err = s.store.User().CheckToken(val.Token)
-		if err != nil{
-			http.Error(w,"Invalid Token",http.StatusBadRequest)
-			return
-		}
+		//err = s.store.User().CheckToken(val.Token)
+		//if err != nil{
+		//	http.Error(w,"Invalid Token",http.StatusBadRequest)
+		//	return
+		//}
 
 		// Send JSON request
 		err = s.config.ParseFromBase64(val.Base, jValue)
@@ -139,10 +139,16 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		}
 
 		// Document structure and we parse text to it
-		docStruct := app.DocStr{}
-		docStruct.RuleDocUsage(jValue.JustText())
+		docType := app.GetMultiplexer(jValue.JustText())
+		if docType == nil{
+			s.logger.Err(err).Msg("No recognized document")
+			http.Error(w,"NOT RECOGNIZED",http.StatusUnprocessableEntity)
+			return
+		}
+		docType.RuleDocUsage(jValue.JustText())
+
 		fmt.Println(jValue.JustText())
-		err = json.NewEncoder(w).Encode(&docStruct)
+		err = json.NewEncoder(w).Encode(&docType)
 		if err != nil{
 			s.logger.Print(err)
 			s.logger.Info().Msg("error parsing json")
@@ -157,7 +163,7 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 type docResponse struct {
 	// recognized fields
 	// in: body
-	Body []app.DocStr
+	Body []interface{}
 }
 
 // Our base64 document

@@ -2,37 +2,6 @@ basePath: /
 consumes:
 - application/json
 definitions:
-  DocStr:
-    properties:
-      amount_of:
-        type: string
-        x-go-name: AmountOf
-      data_num:
-        type: string
-        x-go-name: DataNum
-      full_price:
-        type: string
-        x-go-name: FullPrice
-      payer:
-        type: string
-        x-go-name: Payer
-      prod:
-        type: string
-        x-go-name: Prod
-      producer:
-        type: string
-        x-go-name: Producer
-      requis:
-        type: string
-        x-go-name: Requis
-      signed:
-        type: string
-        x-go-name: Signed
-      sum_n_tax:
-        type: string
-        x-go-name: SumNTax
-    type: object
-    x-go-package: github.com/JetBrainer/BackOCRService/internal/app
   req:
     description: Our base64 document
     properties:
@@ -92,7 +61,7 @@ paths:
           $ref: '#/responses/docResponse'
       summary: Returns particular document field
       tags:
-      - Image
+      - Document
   /register:
     post:
       description: |-
@@ -120,7 +89,7 @@ responses:
     description: Your Invoice structure
     schema:
       items:
-        $ref: '#/definitions/DocStr'
+        type: object
       type: array
   tokenResponse:
     description: ID and Token

@@ -2,6 +2,7 @@ package app
 
 
 type DocStr struct {
+	DocType		string `json:"doc_type"`
 	DataNum 	string `json:"data_num"`
 	Payer 		string `json:"payer"`
 	Producer 	string `json:"producer"`
@@ -14,8 +15,9 @@ type DocStr struct {
 }
 
 func (d *DocStr)RuleDocUsage(text string) {
+	d.DocType = "Счет Фактуры"
 
-	invAndData := InvNumAndData("(....|....(\\s|\\s\\s)..(\\s|\\s\\s).{4,5}.)(\\s|\\s\\s)N.(\\s|\\s\\s)[0-9]{2,4}(\\s|\\s\\s)..(\\s|\\s\\s)[1-3][1-9]((\\s|\\s\\s)\\D{3,8}|\\.(0|1)[1-2]\\.)(\\d{4}|\\d{2})")
+	invAndData := InvNumAndData("[Сс][Чч][Ее][Тт].*(\\s|\\s\\s)N.*")
 	d.DataNum = invAndData.Match(text)
 
 	payer := Payer("(\\W{3}(\\s|\\s\\s)(«|\\\")\\W{1,}\\d+\\W+\\d+|(^\\W+:|^.{1,}:)(\\s|\\s\\s)\\W{1,}\\d{1,}\\s\\W{1,}\\d{1,}(\\s|\\s\\s)\\W+)")
