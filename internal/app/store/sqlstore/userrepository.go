@@ -1,10 +1,12 @@
 package sqlstore
 
 import (
-	"database/sql"
-	"errors"
+	"context"
 	"github.com/JetBrainer/BackOCRService/internal/app/model"
 	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 // User Repo for db work
@@ -14,6 +16,8 @@ type UserRepository struct {
 
 // Create User
 func (r *UserRepository) Create(u *model.User) error{
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	// Validation of User
 	if err := u.Validate(); err != nil{
 		log.Info().Msg("Validation ERROR")
@@ -28,47 +32,48 @@ func (r *UserRepository) Create(u *model.User) error{
 
 	// Generate Token for user
 	u.Token = model.TokenGenerator()
+	collect := r.store.Db.Database("testing").Collection("acc")
+	res, err := collect.InsertOne(ctx, bson.M{
+		"email":				u.Email,
+		"encryptedpassword":	u.EncryptedPassword,
+		"organization":			u.Organization,
+		"token":				u.Token,
+	})
 
-	return r.store.Db.QueryRow(
-		"INSERT INTO acc(email,encpassword,organization,token) VALUES ($1,$2,$3,$4) RETURNING id",
-		u.Email,u.EncryptedPassword,u.Organization,u.Token).Scan(&u.ID)
+	u.ID = res.InsertedID.(primitive.ObjectID)
+	return err
 }
 
 // Find By Email
 func (r *UserRepository) FindByEmail(email string)(*model.User,error){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	u := &model.User{}
+	collect := r.store.Db.Database("testing").Collection("acc")
 
-	if err := r.store.Db.QueryRow(
-		"SELECT id,email,organization,token FROM acc WHERE email=$1",email).
-		Scan(&u.ID,&u.Email,&u.Organization,&u.Token);
-	err != nil{
-		if err == sql.ErrNoRows{
-			return nil, errors.New("SQL NO ROWS")
-		}
-		return nil, err
-	}
-
-	return u, nil
+	err := collect.FindOne(ctx,bson.M{
+		"email":email,
+	}).Decode(&u)
+	return u, err
 }
 
 // Find by id
-func (r *UserRepository) Find(id int) (*model.User,error){
+func (r *UserRepository) Find(id primitive.ObjectID) (*model.User,error){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	u := &model.User{}
-	if err := r.store.Db.QueryRow(
-		"SELECT id,email,encpassword,organization,token FROM acc WHERE id=$1",id).
-		Scan(&u.ID,&u.Email,&u.Password,&u.Organization,&u.Token);
-		err != nil{
-			if err == sql.ErrNoRows{
-				return nil, errors.New("SQL NO ROWS")
-			}
-		return nil, err
-	}
+	collect := r.store.Db.Database("testing").Collection("acc")
 
-	return u, nil
+	err := collect.FindOne(ctx,bson.M{
+		"_id":id,
+	}).Decode(&u)
+	return u, err
 }
 
 // Updated User
 func (r *UserRepository) UpdateUser(u *model.User) error{
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	if err := u.Validate(); err != nil{
 		return err
 	}
@@ -76,28 +81,45 @@ func (r *UserRepository) UpdateUser(u *model.User) error{
 		return err
 	}
 
-	return r.store.Db.QueryRow(
-		"UPDATE acc SET encpassword=$1 WHERE email=$2 RETURNING id",u.EncryptedPassword,u.Email).
-		Scan(&u.ID)
+	collect := r.store.Db.Database("testing").Collection("acc")
+
+	filter := bson.M{
+		"email":u.Email,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"encryptedpassword":u.EncryptedPassword,
+		},
+	}
+	err := collect.FindOneAndUpdate(ctx,filter,update).Decode(&u)
+	return err
 }
 
 // Delete User
 func (r *UserRepository) DeleteUser(email string) error{
-	_, err := r.store.Db.Exec("DELETE FROM acc WHERE email = $1",email)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	collect := r.store.Db.Database("testing").Collection("acc")
+
+	_, err := collect.DeleteOne(ctx, bson.M{
+		"email":email,
+	})
 	if err != nil{
 		return err
 	}
+	log.Info().Msg("Document Changed")
 	return nil
 }
 
 // Check Token
 func (r *UserRepository) CheckToken(Token string) error{
-	if _,err := r.store.Db.Exec(
-		"SELECT token FROM acc WHERE token=$1", Token); err != nil{
-		if err == sql.ErrNoRows{
-			return errors.New("SQL NO ROWS")
-		}
-		return err
-	}
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	u := &model.User{}
+	collect := r.store.Db.Database("testing").Collection("acc")
+
+	err := collect.FindOne(ctx,bson.M{
+		"email":Token,
+	}).Decode(&u)
+	return err
 }

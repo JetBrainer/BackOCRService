@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"flag"
 	"github.com/BurntSushi/toml"
 	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
 	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"os"
 	"os/signal"
@@ -50,8 +50,8 @@ func main(){
 	}(serv)
 
 	// Database Close
-	defer func(db *sql.DB) {
-		if err := db.Close(); err != nil{
+	defer func(db *mongo.Client) {
+		if err := db.Disconnect(context.Background()); err != nil{
 			log.Info().Msg("Error db closing")
 		}
 	}(db)

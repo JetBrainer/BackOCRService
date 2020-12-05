@@ -23,5 +23,5 @@ func TestMain(m *testing.M) {
 		databaseURL = "host=localhost dbname=rest_test sslmode=disable"
 	}
 
-	os.Exit(m.Run()) Something
+	os.Exit(m.Run())
 }

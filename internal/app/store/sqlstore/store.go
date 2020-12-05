@@ -1,17 +1,17 @@
 package sqlstore
 
 import (
-	"database/sql"
 	"github.com/JetBrainer/BackOCRService/internal/app/store"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Store struct {
-	Db             *sql.DB
+	Db             *mongo.Client
 	userRepository *UserRepository
 }
 
 // Constructor db
-func New(db *sql.DB) *Store{
+func New(db *mongo.Client) *Store{
 	return &Store{
 		Db: db,
 	}

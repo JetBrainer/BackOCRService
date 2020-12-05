@@ -1,16 +1,19 @@
 package apiserver
 
 import (
-	"database/sql"
+	"context"
 	"github.com/JetBrainer/BackOCRService/internal/app/store/sqlstore"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"net/http"
 	"time"
 )
 
 // Start server
-func Start(config *Config) (*http.Server, *sql.DB){
+func Start(config *Config) (*http.Server, *mongo.Client){
 	log.Info().Msg("Starting Database...")
 	db, err := newDB(config.DBUrl)
 	if err != nil{
@@ -37,13 +40,13 @@ func Start(config *Config) (*http.Server, *sql.DB){
 	return serv, db
 }
 
-func newDB(databaseURL string) (*sql.DB,error){
+func newDB(databaseURL string) (*mongo.Client,error){
 
-	db, err := sql.Open("postgres",databaseURL)
+	db, err := mongo.NewClient(options.Client().ApplyURI(databaseURL))
 	if err != nil{
 		return nil, err
 	}
-	if err := db.Ping(); err != nil{
+	if err := db.Ping(context.Background(),readpref.Primary()); err != nil{
 		return nil, err
 	}
 	return db, nil

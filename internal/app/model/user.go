@@ -3,18 +3,19 @@ package model
 import (
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
 )
 
 // Register user struct
 type User struct {
-	ID					int
-	Email				string
-	Organization		string
-	Password 			string
-	EncryptedPassword	string
-	Token				string
+	ID					primitive.ObjectID 	`bson:"_id,omitempty"`
+	Email				string				`bson:"email"`
+	Organization		string				`bson:"organization"`
+	Password 			string				`bson:",omitempty"`
+	EncryptedPassword	string				`bson:"encryptedpassword"`
+	Token				string				`bson:"token"`
 }
 
 
