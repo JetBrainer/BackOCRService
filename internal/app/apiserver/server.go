@@ -140,15 +140,15 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		}
 
 		//Document structure and we parse text to it
-		//docType := app.GetMultiplexer(jValue.JustText())
-		//if docType == nil{
-		//	s.logger.Err(err).Msg("No recognized document")
-		//	http.Error(w,"NOT RECOGNIZED",http.StatusUnprocessableEntity)
-		//	return
-		//}
-		//docType.RuleDocUsage(jValue.JustText())
-		docType := app.DocStr{}
+		docType := app.GetMultiplexer(jValue.JustText())
+		if docType == nil{
+			s.logger.Err(err).Msg("No recognized document")
+			http.Error(w,"NOT RECOGNIZED",http.StatusUnprocessableEntity)
+			return
+		}
 		docType.RuleDocUsage(jValue.JustText())
+		//docType := app.DocStr{}
+		//docType.RuleDocUsage(jValue.JustText())
 
 		fmt.Println(jValue.JustText())
 		err = json.NewEncoder(w).Encode(&docType)
