@@ -20,7 +20,7 @@ func (d *DocStr)RuleDocUsage(text string) {
 	invAndData := InvNumAndData("[Сс][Чч][Ее][Тт].*(\\s|\\s\\s)N.*")
 	d.DataNum = invAndData.Match(text)
 
-	payer := Payer("(\\W{3}(\\s|\\s\\s)(«|\\\")\\W{1,}\\d+\\W+\\d+|(^\\W+:|^.{1,}:)(\\s|\\s\\s)\\W{1,}\\d{1,}\\s\\W{1,}\\d{1,}(\\s|\\s\\s)\\W+)")
+	payer := Payer("(?m)(\\W{3}(\\s|\\s\\s)(«|\\\")\\W{1,}\\d+\\W+\\d+|(^\\W+:|^.{1,}:)(\\s|\\s\\s)\\W{1,}\\d{1,}\\s\\W{1,}\\d{1,}(\\s|\\s\\s)\\W+)")
 	d.Payer = payer.Match(text)
 
 	produce := Producer("(П.{1,10}|^.........:)\\s.*(”|“)")
@@ -41,7 +41,7 @@ func (d *DocStr)RuleDocUsage(text string) {
 	fullSum := SumTax("Су\\W{1,}.*\\s.*\\s.*(\\s\\d.*)")
 	d.FullPrice = fullSum.Match(text)
 
-	prodN := ProdName("(?m)^[Н].*(\\s|\\s\\s).*(\\s|\\s\\s).*")
+	prodN := ProdName("(?m)^[Тт].*(\\s|\\s\\s).*(\\s|\\s\\s).*")
 	d.Prod = prodN.Match(text)
 
 }
