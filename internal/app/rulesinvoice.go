@@ -2,6 +2,7 @@ package app
 
 import (
 	"regexp"
+	"strings"
 )
 
 
@@ -29,7 +30,9 @@ type Producer string
 
 func (p *Producer)Match(text string) string {
 	matched := regexp.MustCompile(string(*p)).FindString(text)
-	return matched
+	val := strings.Split(matched,"\r\n")
+	val2 := strings.TrimSpace(val[len(val)-1])
+	return val2
 }
 
 // Shows Bank number data
@@ -61,7 +64,9 @@ type Followed string
 
 func (f *Followed)Match(text string) string {
 	matched := regexp.MustCompile(string(*f)).FindString(text)
-	return matched
+	val := strings.Split(matched,"\r\n")
+	val2 := strings.TrimSpace(val[len(val)-2])
+	return val2
 }
 
 // Shows full sum with product
@@ -69,7 +74,9 @@ type SumTax string
 
 func (st *SumTax)Match(text string) string {
 	matched := regexp.MustCompile(string(*st)).FindString(text)
-	return matched
+	val := strings.Split(matched,"\r\n")
+	val2 := strings.TrimSpace(val[len(val)-1])
+	return val2
 }
 
 // Shows product name
@@ -77,5 +84,7 @@ type ProdName string
 
 func (pn *ProdName)Match(text string) string {
 	matched := regexp.MustCompile(string(*pn)).FindString(text)
-	return matched
+	val := strings.Split(matched,"\r\n")
+	val2 := strings.TrimSpace(val[len(val)-1])
+	return val2
 }

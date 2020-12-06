@@ -136,6 +136,7 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		if err != nil{
 			s.logger.Err(err).Msg("Error parsing from Local")
 			http.Error(w,err.Error(),http.StatusUnprocessableEntity)
+			return
 		}
 
 		//Document structure and we parse text to it
@@ -153,6 +154,8 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		if err != nil{
 			s.logger.Print(err)
 			s.logger.Info().Msg("error parsing json")
+			http.Error(w,"ERR JSON",http.StatusInternalServerError)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)

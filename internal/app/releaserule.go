@@ -26,7 +26,7 @@ func (d *DocStr)RuleDocUsage(text string) {
 	produce := Producer("(П.{1,10}|^.........:)\\s.*(”|“)")
 	d.Producer = produce.Match(text)
 
-	requis := Requisites("(?m)(^[Сс][Чч](,\\s|.\\s|\\s\\s).*\\sБ|^[Сс][Чч](,\\s|.\\s|\\s\\s).*\\s^[Сс][Чч](,\\s|.\\s|\\s\\s).*\\s.*\\s.*)")
+	requis := Requisites("\\d{20}")
 	d.Requis = requis.Match(text)
 
 	sumWTax := SumWithTax("....у(\\s|\\s\\s)(\\d\\,\\s|\\d\\'\\s|\\d\\s|\\d)\\d{3}\\,(\\d{2}|\\d{3}\\,|}|\\d{3}\\s)")
