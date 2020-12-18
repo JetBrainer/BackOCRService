@@ -20,7 +20,7 @@ func TestMain(m *testing.M) {
 	}
 	databaseURL = os.Getenv("TESTDB")
 	if databaseURL == ""{
-		databaseURL = "host=localhost dbname=rest_test sslmode=disable"
+		databaseURL = "mongodb://localhost:27017"
 	}
 
 	os.Exit(m.Run())

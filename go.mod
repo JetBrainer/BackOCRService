@@ -14,6 +14,7 @@ require (
 	github.com/lib/pq v1.8.0
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.6.1
+	go.mongodb.org/mongo-driver v1.3.4
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9
 	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc // indirect
 	golang.org/x/text v0.3.3 // indirect
