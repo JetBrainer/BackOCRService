@@ -30,6 +30,9 @@ type SenderBIN string
 
 func (sbi *SenderBIN) Match(text string) string{
 	matched := regexp.MustCompile(string(*sbi)).FindAllString(text,2)
+	if matched == nil{
+		return ""
+	}
 	val := strings.Split(matched[0]," ")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
@@ -89,6 +92,9 @@ type ProduceCompany string
 
 func (pcy *ProduceCompany) Match(text string) string{
 	matched := regexp.MustCompile(string(*pcy)).FindString(text)
+	if matched == ""{
+		return ""
+	}
 	val := strings.Split(matched," ")
 	val2 := strings.Join(val[1:len(val)-1]," ")
 	return val2
@@ -109,6 +115,9 @@ type ProduceCompanyBIN string
 
 func (pcb *ProduceCompanyBIN) Match(text string) string{
 	matched := regexp.MustCompile(string(*pcb)).FindAllString(text,2)
+	if matched == nil{
+		return ""
+	}
 	val := strings.Split(matched[1]," ")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2

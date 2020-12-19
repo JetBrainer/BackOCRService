@@ -65,7 +65,7 @@ type Followed string
 func (f *Followed)Match(text string) string {
 	matched := regexp.MustCompile(string(*f)).FindString(text)
 	val := strings.Split(matched,"\r\n")
-	val2 := strings.TrimSpace(val[len(val)-2])
+	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
 

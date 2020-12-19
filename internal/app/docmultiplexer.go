@@ -9,19 +9,19 @@ func MultiplexDocument(text string) string{
 	invSchet := DocStr{}
 	invSchet.RuleDocUsage(text)
 
-	vSchet := reflect.ValueOf(invSchet)
+	//vSchet := reflect.ValueOf(invSchet)
 
 
 	var counter int
-	for i:=0;i< vSchet.NumField();i++{
-		values := vSchet.Field(i).String()
-		if values != ""{
-			counter++
-		}
-	}
-	if counter == vSchet.NumField(){
-		return "Счет Фактура"
-	}
+	//for i:=0;i< vSchet.NumField();i++{
+	//	values := vSchet.Field(i).String()
+	//	if values != ""{
+	//		counter++
+	//	}
+	//}
+	//if counter == 6{
+	//	return "Счет Фактура"
+	//}
 
 	counter = 0
 	docPlat := DocPlatPoruchenie{}
@@ -38,7 +38,7 @@ func MultiplexDocument(text string) string{
 		return "Платежное Поручение"
 	}
 
-	return ""
+	return "Счет Фактура"
 }
 
 

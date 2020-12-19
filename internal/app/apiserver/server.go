@@ -125,11 +125,11 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 		}
 		//key := r.Header.Get("Authorization")
 
-		//err = s.store.User().CheckToken(val.Token)
-		//if err != nil{
-		//	http.Error(w,"Invalid Token",http.StatusBadRequest)
-		//	return
-		//}
+		err = s.store.User().CheckToken(val.Token)
+		if err != nil{
+			http.Error(w,"Invalid Token",http.StatusBadRequest)
+			return
+		}
 
 		// Send JSON request
 		err = s.config.ParseFromBase64(val.Base, jValue)
@@ -147,8 +147,6 @@ func (s *server) docJsonHandler() http.HandlerFunc{
 			return
 		}
 		docType.RuleDocUsage(jValue.JustText())
-		//docType := app.DocStr{}
-		//docType.RuleDocUsage(jValue.JustText())
 
 		fmt.Println(jValue.JustText())
 		err = json.NewEncoder(w).Encode(&docType)

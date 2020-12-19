@@ -2,6 +2,7 @@ package apiserver
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/JetBrainer/BackOCRService/internal/app/model"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -22,12 +23,13 @@ func (s *server) createUserHandler() http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil{
+			fmt.Println(err)
 			http.Error(w,"Error parsing json",http.StatusBadRequest)
 			return
 		}
 		u := &model.User{
-			Email: req.Email,
-			Password: req.Password,
+			Email: 		  req.Email,
+			Password: 	  req.Password,
 			Organization: req.Organization,
 		}
 
