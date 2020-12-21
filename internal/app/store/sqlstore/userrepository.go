@@ -123,3 +123,16 @@ func (r *UserRepository) CheckToken(Token string) error{
 	}).Decode(&u)
 	return err
 }
+
+
+// Sort Database
+func(r *UserRepository)SortBase(){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	u := &model.User{}
+	collect := r.store.Db.Database("testing").Collection("acc")
+	
+	collect.Aggregate(ctx, mongo.Pipeline{
+		{{"$sort", bson.M{{"email":1}}}},
+	})
+}
