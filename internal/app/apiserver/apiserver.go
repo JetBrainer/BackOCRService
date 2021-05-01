@@ -20,7 +20,7 @@ func Start(config *Config) (*http.Server, *sql.DB) {
 	store := sqlstore.New(db)
 	r := newServer(store, config)
 	serv := &http.Server{
-		Addr:         ":33331",
+		Addr:         ":" + config.HttpPort,
 		Handler:      r,
 		ReadTimeout:  7 * time.Second,
 		WriteTimeout: 10 * time.Second,
