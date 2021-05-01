@@ -1,20 +1,19 @@
 package app
 
-
 type DocStr struct {
-	DocType		string `json:"doc_type"`
-	DataNum 	string `json:"data_num"`
-	Payer 		string `json:"payer"`
-	Producer 	string `json:"producer"`
-	Requis		string `json:"requis"`
-	SumNTax		string `json:"sum_n_tax"`
-	AmountOf	string `json:"amount_of"`
-	Signed		string `json:"signed"`
-	FullPrice	string `json:"full_price"`
-	Prod		string `json:"prod"`
+	DocType   string `json:"doc_type"`
+	DataNum   string `json:"data_num"`
+	Payer     string `json:"payer"`
+	Producer  string `json:"producer"`
+	Requis    string `json:"requis"`
+	SumNTax   string `json:"sum_n_tax"`
+	AmountOf  string `json:"amount_of"`
+	Signed    string `json:"signed"`
+	FullPrice string `json:"full_price"`
+	Prod      string `json:"prod"`
 }
 
-func (d *DocStr)RuleDocUsage(text string) {
+func (d *DocStr) RuleDocUsage(text string) {
 	d.DocType = "Счет Фактуры"
 
 	invAndData := InvNumAndData("[Сс][Чч][Ее][Тт].*(\\s|\\s\\s)N.*")

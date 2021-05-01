@@ -6,8 +6,7 @@ import (
 	"strings"
 )
 
-
-func prepareUploadBody(fileReader io.Reader, lang, apikey string) (string,io.Reader){
+func prepareUploadBody(fileReader io.Reader, lang, apikey string) (string, io.Reader) {
 	boundary := "MultiPartBoundary"
 
 	fieldFormat := "--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n"
@@ -27,7 +26,7 @@ func prepareUploadBody(fileReader io.Reader, lang, apikey string) (string,io.Rea
 	//fileFormat := "--%s\r\nContent-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n%s\r\n\r\n"
 	//filePart := fmt.Sprintf(fileFormat, boundary, fileName, fileHeader)
 
-	bodyTop := fmt.Sprintf("%s%s%s%s", langPart, tokenPart,overlay,scale)
+	bodyTop := fmt.Sprintf("%s%s%s%s", langPart, tokenPart, overlay, scale)
 
 	body := io.MultiReader(strings.NewReader(bodyTop), fileReader)
 

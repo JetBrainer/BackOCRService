@@ -1,22 +1,22 @@
 package app
 
 type DocPlatPoruchenie struct {
-	DocType					string	`json:"doc_type"`
-	InvoiceNumber 			string	`json:"invoice_number"`
-	SenderCompany 			string	`json:"sender_company"`
-	SenderCompanyBIN		string	`json:"sender_company_bin"`
-	SenderCompanyIIK		string	`json:"sender_company_iik"`
-	SenderCompanyBank		string	`json:"sender_company_bank"`
-	SenderCompanyBankBIK	string	`json:"sender_company_bank_bik"`
-	SenderCompanyCode		string	`json:"sender_company_code"`
-	PayerCompanyCode		string	`json:"payer_company_code"`
-	ProducerCompany			string	`json:"producer_company"`
-	ProducerCompanyKBE		string	`json:"producer_company_kbe"`
-	ProducerCompanyBIN		string	`json:"producer_company_bin"`
-	ProducerCompanyIIK		string	`json:"producer_company_iik"`
-	ProducerSenderSum		string	`json:"producer_sender_sum"`
-	ProducerSenderSumNDS	string	`json:"producer_sender_sum_nds"`
-	DateRelease				string	`json:"date_release"`
+	DocType              string `json:"doc_type"`
+	InvoiceNumber        string `json:"invoice_number"`
+	SenderCompany        string `json:"sender_company"`
+	SenderCompanyBIN     string `json:"sender_company_bin"`
+	SenderCompanyIIK     string `json:"sender_company_iik"`
+	SenderCompanyBank    string `json:"sender_company_bank"`
+	SenderCompanyBankBIK string `json:"sender_company_bank_bik"`
+	SenderCompanyCode    string `json:"sender_company_code"`
+	PayerCompanyCode     string `json:"payer_company_code"`
+	ProducerCompany      string `json:"producer_company"`
+	ProducerCompanyKBE   string `json:"producer_company_kbe"`
+	ProducerCompanyBIN   string `json:"producer_company_bin"`
+	ProducerCompanyIIK   string `json:"producer_company_iik"`
+	ProducerSenderSum    string `json:"producer_sender_sum"`
+	ProducerSenderSumNDS string `json:"producer_sender_sum_nds"`
+	DateRelease          string `json:"date_release"`
 }
 
 // Rule for "Платежное поручение"

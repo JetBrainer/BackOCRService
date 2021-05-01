@@ -30,13 +30,13 @@ import (
 )
 
 type server struct {
-	router  *mux.Router
-	logger  *zerolog.Logger
-	config  *Config
-	store 	store.Store
+	router *mux.Router
+	logger *zerolog.Logger
+	config *Config
+	store  store.Store
 }
 
-func newServer(store store.Store, config *Config) *server{
+func newServer(store store.Store, config *Config) *server {
 	// Put Log Level to Debug
 
 	logLevel := zerolog.DebugLevel
@@ -48,7 +48,7 @@ func newServer(store store.Store, config *Config) *server{
 		router: mux.NewRouter(),
 		logger: &logger,
 		config: config,
-		store: 	store,
+		store:  store,
 	}
 
 	s.configureRouter()
@@ -56,27 +56,27 @@ func newServer(store store.Store, config *Config) *server{
 	return s
 }
 
-func (s *server) ServeHTTP(w http.ResponseWriter,r *http.Request){
-	s.router.ServeHTTP(w,r)
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
 }
 
-func (s *server) configureRouter(){
+func (s *server) configureRouter() {
 
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 
-	s.router.HandleFunc("/register",s.createUserHandler()).Methods(http.MethodPost)
+	s.router.HandleFunc("/register", s.createUserHandler()).Methods(http.MethodPost)
 	s.router.HandleFunc("/image", s.docJsonHandler()).Methods(http.MethodPost)
-	s.router.HandleFunc("/form",s.getDocPartFormHandler()).Methods(http.MethodPost)
+	s.router.HandleFunc("/form", s.getDocPartFormHandler()).Methods(http.MethodPost)
 
 	// Openapi 2.0 spec generation handler
 	ops := middleware.RedocOpts{SpecURL: "/api/v1/swagger.yaml"}
 	sh := middleware.Redoc(ops, nil)
-	s.router.Handle("/docs",sh)
-	s.router.Handle("/api/v1/swagger.yaml",http.FileServer(http.Dir("./")))
+	s.router.Handle("/docs", sh)
+	s.router.Handle("/api/v1/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	s.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles("static/menu.html"))
-		if err := tmpl.Execute(w,nil); err != nil{
+		if err := tmpl.Execute(w, nil); err != nil {
 			s.logger.Err(err).Msg("Error loading template")
 		}
 	})
@@ -84,7 +84,7 @@ func (s *server) configureRouter(){
 		Handler(http.FileServer(http.Dir("./static")))
 }
 
-func (s *server) getDocPartFormHandler() http.HandlerFunc{
+func (s *server) getDocPartFormHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var err error
 
@@ -92,9 +92,9 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 
 		// Send Request to another Api and get text result
 		err = s.config.ParseFromPost(r.Body, jValue)
-		if err != nil{
+		if err != nil {
 			s.logger.Err(err).Msg("Error parsing from Local")
-			http.Error(w,err.Error(),http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 		defer r.Body.Close()
 		s.logger.Info().Msg(jValue.JustText())
@@ -114,46 +114,46 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc{
 //	200: docResponse
 
 // Get JSON base64 image
-func (s *server) docJsonHandler() http.HandlerFunc{
+func (s *server) docJsonHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		jValue := &OCRText{}
 		val := &req{}
 		err := json.NewDecoder(r.Body).Decode(&val)
-		if err != nil{
+		if err != nil {
 			log.Info().Msg("Unmarshal error")
 			return
 		}
 		//key := r.Header.Get("Authorization")
 
 		err = s.store.User().CheckToken(val.Token)
-		if err != nil{
-			http.Error(w,"Invalid Token",http.StatusBadRequest)
+		if err != nil {
+			http.Error(w, "Invalid Token", http.StatusBadRequest)
 			return
 		}
 
 		// Send JSON request
 		err = s.config.ParseFromBase64(val.Base, jValue)
-		if err != nil{
+		if err != nil {
 			s.logger.Err(err).Msg("Error parsing from Local")
-			http.Error(w,err.Error(),http.StatusUnprocessableEntity)
+			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
 
 		//Document structure and we parse text to it
 		docType := app.GetMultiplexer(jValue.JustText())
-		if docType == nil{
+		if docType == nil {
 			s.logger.Err(err).Msg("No recognized document")
-			http.Error(w,"NOT RECOGNIZED",http.StatusUnprocessableEntity)
+			http.Error(w, "NOT RECOGNIZED", http.StatusUnprocessableEntity)
 			return
 		}
 		docType.RuleDocUsage(jValue.JustText())
 
 		fmt.Println(jValue.JustText())
 		err = json.NewEncoder(w).Encode(&docType)
-		if err != nil{
+		if err != nil {
 			s.logger.Print(err)
 			s.logger.Info().Msg("error parsing json")
-			http.Error(w,"ERR JSON",http.StatusInternalServerError)
+			http.Error(w, "ERR JSON", http.StatusInternalServerError)
 			return
 		}
 

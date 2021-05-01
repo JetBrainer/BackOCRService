@@ -11,7 +11,7 @@ type Store struct {
 }
 
 // Constructor db
-func New(db *sql.DB) *Store{
+func New(db *sql.DB) *Store {
 	return &Store{
 		Db: db,
 	}
@@ -19,7 +19,7 @@ func New(db *sql.DB) *Store{
 
 // User ...
 func (s *Store) User() store.UserRepository {
-	if s.userRepository != nil{
+	if s.userRepository != nil {
 		return s.userRepository
 	}
 

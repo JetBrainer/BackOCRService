@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"github.com/BurntSushi/toml"
 	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -13,27 +12,15 @@ import (
 	"syscall"
 )
 
-// Toml config path file
-var configPath string
-
-// Parsing values
-func init(){
-	flag.StringVar(&configPath,"config","config/apiserver.toml","path to config file")
-}
-
-func main(){
+func main() {
 	// Parse flags
 	flag.Parse()
 
 	// Configs
-	config := apiserver.InitConfig()
-
-	// Decode Toml file and record
-	_, err := toml.DecodeFile(configPath,&config)
+	config, err := apiserver.InitConfig()
 	if err != nil{
 		log.Fatal().Err(err).Msg("Decode file Failed")
 	}
-
 	// context to shutdown
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -41,17 +28,16 @@ func main(){
 	// Start Server
 	serv, db := apiserver.Start(config)
 
-
 	// Server Shutdown
 	defer func(serv *http.Server) {
-		if err := serv.Shutdown(ctx); err != nil{
+		if err := serv.Shutdown(ctx); err != nil {
 			log.Info().Msg("Server Shutdown error")
 		}
 	}(serv)
 
 	// Database Close
 	defer func(db *sql.DB) {
-		if err := db.Close(); err != nil{
+		if err := db.Close(); err != nil {
 			log.Info().Msg("Error db closing")
 		}
 	}(db)
@@ -61,9 +47,9 @@ func main(){
 }
 
 // Graceful Shutdown
-func handleSignals() os.Signal{
-	sigChan := make(chan os.Signal,1)
-	signal.Notify(sigChan,os.Interrupt, syscall.SIGTERM)
+func handleSignals() os.Signal {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	for {
 		sig := <-sigChan
 		switch sig {

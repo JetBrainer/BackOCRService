@@ -19,33 +19,33 @@ import (
 //  200: tokenResponse
 
 // Creates User
-func (s *server) createUserHandler() http.HandlerFunc{
+func (s *server) createUserHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil{
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			fmt.Println(err)
-			http.Error(w,"Error parsing json",http.StatusBadRequest)
+			http.Error(w, "Error parsing json", http.StatusBadRequest)
 			return
 		}
 		u := &model.User{
-			Email: 		  req.Email,
-			Password: 	  req.Password,
+			Email:        req.Email,
+			Password:     req.Password,
 			Organization: req.Organization,
 		}
 
-		if err := s.store.User().Create(u); err != nil{
+		if err := s.store.User().Create(u); err != nil {
 			log.Print(err)
-			http.Error(w,"Error adding values",http.StatusUnprocessableEntity)
+			http.Error(w, "Error adding values", http.StatusUnprocessableEntity)
 			return
 		}
 		resp := &response{
-			ID: u.ID,
+			ID:    u.ID,
 			Token: u.Token,
 		}
 
 		u.Sanitize()
 		w.WriteHeader(http.StatusCreated)
-		if err := json.NewEncoder(w).Encode(resp); err != nil{
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
 			s.logger.Info().Msg("Error JSON Encode")
 		}
 	}
@@ -69,29 +69,29 @@ type formCreateReq struct {
 }
 
 type request struct {
-	Email 			string `json:"email"`
-	Password		string `json:"password"`
-	Organization	string `json:"organization"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	Organization string `json:"organization"`
 }
 type response struct {
-	ID		int 	`json:"id"`
-	Token	string 	`json:"token"`
+	ID    int    `json:"id"`
+	Token string `json:"token"`
 }
 
-func (s *server) handleUserDelete() http.HandlerFunc{
+func (s *server) handleUserDelete() http.HandlerFunc {
 	type request struct {
 		Email string `json:"email"`
 	}
-	return func(w http.ResponseWriter,r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil{
-			http.Error(w,"Unable Decode JSON",http.StatusBadRequest)
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			http.Error(w, "Unable Decode JSON", http.StatusBadRequest)
 			return
 		}
 
-		if err := s.store.User().DeleteUser(req.Email); err != nil{
+		if err := s.store.User().DeleteUser(req.Email); err != nil {
 			s.logger.Info().Msg("Unable Delete user")
-			http.Error(w,"Incorrect Email Or Password",http.StatusUnauthorized)
+			http.Error(w, "Incorrect Email Or Password", http.StatusUnauthorized)
 			return
 		}
 

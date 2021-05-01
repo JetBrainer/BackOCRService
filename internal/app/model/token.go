@@ -7,10 +7,10 @@ import (
 )
 
 // Token generator for user companies
-func TokenGenerator() string{
-	b := make([]byte,8)
+func TokenGenerator() string {
+	b := make([]byte, 8)
 	_, err := rand.Read(b)
-	if err != nil{
+	if err != nil {
 		log.Info().Msg("Generate Token Error")
 	}
 	return fmt.Sprintf("%x", b)

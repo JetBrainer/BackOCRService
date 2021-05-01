@@ -8,9 +8,9 @@ import (
 // Shows Invoice Number
 type InvNumber string
 
-func (i *InvNumber) Match(text string) string{
+func (i *InvNumber) Match(text string) string {
 	matched := regexp.MustCompile(string(*i)).FindString(text)
-	val := strings.Split(matched," ")
+	val := strings.Split(matched, " ")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -18,9 +18,9 @@ func (i *InvNumber) Match(text string) string{
 // Shows sender of Money
 type Sender string
 
-func (s *Sender) Match(text string) string{
+func (s *Sender) Match(text string) string {
 	matched := regexp.MustCompile(string(*s)).FindString(text)
-	val := strings.Split(matched,"\r\n")
+	val := strings.Split(matched, "\r\n")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -28,12 +28,12 @@ func (s *Sender) Match(text string) string{
 // Shows sender bin
 type SenderBIN string
 
-func (sbi *SenderBIN) Match(text string) string{
-	matched := regexp.MustCompile(string(*sbi)).FindAllString(text,2)
-	if matched == nil{
+func (sbi *SenderBIN) Match(text string) string {
+	matched := regexp.MustCompile(string(*sbi)).FindAllString(text, 2)
+	if matched == nil {
 		return ""
 	}
-	val := strings.Split(matched[0]," ")
+	val := strings.Split(matched[0], " ")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -41,7 +41,7 @@ func (sbi *SenderBIN) Match(text string) string{
 // Shows sender IIK
 type SenderIIK string
 
-func (si *SenderIIK) Match(text string) string{
+func (si *SenderIIK) Match(text string) string {
 	matched := regexp.MustCompile(string(*si)).FindString(text)
 	val2 := strings.TrimSpace(matched)
 	return val2
@@ -50,9 +50,9 @@ func (si *SenderIIK) Match(text string) string{
 // Shows Sender Bank
 type SenderBank string
 
-func (sb *SenderBank) Match(text string) string{
+func (sb *SenderBank) Match(text string) string {
 	matched := regexp.MustCompile(string(*sb)).FindString(text)
-	val := strings.Split(matched," ")
+	val := strings.Split(matched, " ")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -60,9 +60,9 @@ func (sb *SenderBank) Match(text string) string{
 // Shows Sender BIK
 type SenderBankBIK string
 
-func (sbb *SenderBankBIK) Match(text string) string{
+func (sbb *SenderBankBIK) Match(text string) string {
 	matched := regexp.MustCompile(string(*sbb)).FindString(text)
-	val := strings.Split(matched,"\r\n")
+	val := strings.Split(matched, "\r\n")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -70,9 +70,9 @@ func (sbb *SenderBankBIK) Match(text string) string{
 // Shows Sender Code
 type SenderCode string
 
-func (sc *SenderCode) Match(text string) string{
+func (sc *SenderCode) Match(text string) string {
 	matched := regexp.MustCompile(string(*sc)).FindString(text)
-	val := strings.Split(matched,"\r\n")
+	val := strings.Split(matched, "\r\n")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -80,9 +80,9 @@ func (sc *SenderCode) Match(text string) string{
 // Shows payer Code
 type PayerCode string
 
-func (pc *PayerCode) Match(text string) string{
+func (pc *PayerCode) Match(text string) string {
 	matched := regexp.MustCompile(string(*pc)).FindString(text)
-	val := strings.Split(matched,"\r\n")
+	val := strings.Split(matched, "\r\n")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -90,22 +90,22 @@ func (pc *PayerCode) Match(text string) string{
 // Shows Producer Company
 type ProduceCompany string
 
-func (pcy *ProduceCompany) Match(text string) string{
+func (pcy *ProduceCompany) Match(text string) string {
 	matched := regexp.MustCompile(string(*pcy)).FindString(text)
-	if matched == ""{
+	if matched == "" {
 		return ""
 	}
-	val := strings.Split(matched," ")
-	val2 := strings.Join(val[1:len(val)-1]," ")
+	val := strings.Split(matched, " ")
+	val2 := strings.Join(val[1:len(val)-1], " ")
 	return val2
 }
 
 // Shows Producer Company KBE
 type ProduceCompanyKBE string
 
-func (pck *ProduceCompanyKBE) Match(text string) string{
+func (pck *ProduceCompanyKBE) Match(text string) string {
 	matched := regexp.MustCompile(string(*pck)).FindString(text)
-	val := strings.Split(matched,"\r\n")
+	val := strings.Split(matched, "\r\n")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -113,12 +113,12 @@ func (pck *ProduceCompanyKBE) Match(text string) string{
 // Shows Producer Company BIN
 type ProduceCompanyBIN string
 
-func (pcb *ProduceCompanyBIN) Match(text string) string{
-	matched := regexp.MustCompile(string(*pcb)).FindAllString(text,2)
-	if matched == nil{
+func (pcb *ProduceCompanyBIN) Match(text string) string {
+	matched := regexp.MustCompile(string(*pcb)).FindAllString(text, 2)
+	if matched == nil {
 		return ""
 	}
-	val := strings.Split(matched[1]," ")
+	val := strings.Split(matched[1], " ")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -126,7 +126,7 @@ func (pcb *ProduceCompanyBIN) Match(text string) string{
 // Shows Producer Company IIK
 type ProduceCompanyIIK string
 
-func (pci *ProduceCompanyIIK) Match(text string) string{
+func (pci *ProduceCompanyIIK) Match(text string) string {
 	matched := regexp.MustCompile(string(*pci)).FindString(text)
 	return matched
 }
@@ -134,9 +134,9 @@ func (pci *ProduceCompanyIIK) Match(text string) string{
 // Shows Sun
 type Sum string
 
-func (sm *Sum) Match(text string) string{
+func (sm *Sum) Match(text string) string {
 	matched := regexp.MustCompile(string(*sm)).FindString(text)
-	val := strings.Split(matched,"\r\n")
+	val := strings.Split(matched, "\r\n")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -144,9 +144,9 @@ func (sm *Sum) Match(text string) string{
 // Shows NDS
 type SumNDS string
 
-func (sn *SumNDS) Match(text string) string{
+func (sn *SumNDS) Match(text string) string {
 	matched := regexp.MustCompile(string(*sn)).FindString(text)
-	val := strings.Split(matched,"\r\n")
+	val := strings.Split(matched, "\r\n")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }
@@ -154,11 +154,8 @@ func (sn *SumNDS) Match(text string) string{
 // Shows Date
 type DateProd string
 
-func (dp *DateProd) Match(text string) string{
+func (dp *DateProd) Match(text string) string {
 	matched := regexp.MustCompile(string(*dp)).FindString(text)
 	val2 := strings.TrimSpace(matched)
 	return val2
 }
-
-
-

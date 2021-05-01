@@ -4,6 +4,6 @@ type Document interface {
 	RuleDocUsage(string)
 }
 
-type Docs interface{
+type Docs interface {
 	Match(string) string
 }

@@ -5,12 +5,11 @@ import (
 	"reflect"
 )
 
-func MultiplexDocument(text string) string{
+func MultiplexDocument(text string) string {
 	invSchet := DocStr{}
 	invSchet.RuleDocUsage(text)
 
 	//vSchet := reflect.ValueOf(invSchet)
-
 
 	var counter int
 	//for i:=0;i< vSchet.NumField();i++{
@@ -28,21 +27,20 @@ func MultiplexDocument(text string) string{
 	docPlat.RuleDocUsage(text)
 
 	docPlatSchet := reflect.ValueOf(docPlat)
-	for i:=0;i< docPlatSchet.NumField();i++{
+	for i := 0; i < docPlatSchet.NumField(); i++ {
 		values := docPlatSchet.Field(i).String()
-		if values != ""{
+		if values != "" {
 			counter++
 		}
 	}
-	if counter == docPlatSchet.NumField(){
+	if counter >= docPlatSchet.NumField() - 3 {
 		return "Платежное Поручение"
 	}
 
 	return "Счет Фактура"
 }
 
-
-func GetMultiplexer(text string) Document{
+func GetMultiplexer(text string) Document {
 	valType := MultiplexDocument(text)
 
 	switch valType {

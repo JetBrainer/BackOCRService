@@ -8,9 +8,9 @@ import (
 
 // Validation for user
 func TestUser_Validate(t *testing.T) {
-	testCases := []struct{
-		name 	string
-		u	 	func() *model.User
+	testCases := []struct {
+		name    string
+		u       func() *model.User
 		isValid bool
 	}{
 		{
@@ -77,11 +77,11 @@ func TestUser_Validate(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases{
+	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.isValid{
+			if tc.isValid {
 				assert.NoError(t, tc.u().Validate())
-			} else{
+			} else {
 				assert.Error(t, tc.u().Validate())
 			}
 		})
@@ -92,6 +92,6 @@ func TestUser_Validate(t *testing.T) {
 
 func TestUser_BeforeCreate(t *testing.T) {
 	u := model.TestUser(t)
-	assert.NoError(t,u.BeforeCreate())
+	assert.NoError(t, u.BeforeCreate())
 	assert.NotEmpty(t, u.EncryptedPassword)
 }

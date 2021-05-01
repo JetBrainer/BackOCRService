@@ -15,11 +15,11 @@ var (
 
 func TestMain(m *testing.M) {
 
-	if err := godotenv.Load(".env"); err != nil{
+	if err := godotenv.Load(".env"); err != nil {
 		log.Info().Msg("Unable to load env file")
 	}
 	databaseURL = os.Getenv("TESTDB")
-	if databaseURL == ""{
+	if databaseURL == "" {
 		databaseURL = "host=localhost dbname=rest_test sslmode=disable"
 	}
 
