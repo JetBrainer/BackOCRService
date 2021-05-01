@@ -68,6 +68,7 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/image", s.docJsonHandler()).Methods(http.MethodPost)
 	s.router.HandleFunc("/form", s.getDocPartFormHandler()).Methods(http.MethodPost)
 
+
 	// Openapi 2.0 spec generation handler
 	ops := middleware.RedocOpts{SpecURL: "/api/v1/swagger.yaml"}
 	sh := middleware.Redoc(ops, nil)
