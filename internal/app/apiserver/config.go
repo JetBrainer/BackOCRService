@@ -7,7 +7,6 @@ type Config struct {
 	Language string `env:"language" envDefault:"rus"`
 	Url      string `env:"url" envDefault:"https://api.ocr.space/parse/image"`
 	DBUrl    string `env:"database_url" envDefault:"postgres://oedbfnojeglfik:945a538bc9cf38a29dad405949bc8694ff7b6b39d59f599d14befa304066635c@ec2-52-209-134-160.eu-west-1.compute.amazonaws.com:5432/d5i7mb4hehn571"`
-	HttpPort string `env:"port" envDefault:":8080"`
 }
 
 // A list of document values returns in the response
