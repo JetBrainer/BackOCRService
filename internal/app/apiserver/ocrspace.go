@@ -3,7 +3,6 @@ package apiserver
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/google/uuid"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,10 +11,12 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"github.com/google/uuid"
 )
 
 // Parse data from URL
-func (c *Config) ParseFromURL(fileURL string) (OCRText, error) {
+func (c *Config) ParseFromURL(fileURL string) (*OCRText, error) {
 	var results OCRText
 	resp, err := http.PostForm(c.Url, url.Values{
 		"url":                          {fileURL},
@@ -26,21 +27,21 @@ func (c *Config) ParseFromURL(fileURL string) (OCRText, error) {
 		"scale":                        {"true"},
 	})
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 
 	err = json.Unmarshal(body, &results)
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 
-	return results, err
+	return &results, nil
 }
 
 // Parse to OCR From Base64
@@ -83,8 +84,10 @@ func (c *Config) ParseFromPost(r io.Reader, results *OCRText) error {
 		"scale":             "true",
 	}
 
-	newid := uuid.New().String()
-	file, err := os.Create(newid + ".jpg")
+	file, err := os.Create(uuid.New().String() + ".jpg")
+	if err != nil {
+		return err
+	}
 	defer os.Remove(file.Name())
 
 	fileOpen, _ := os.Open(file.Name())
@@ -128,7 +131,7 @@ func (c *Config) ParseFromPost(r io.Reader, results *OCRText) error {
 	return nil
 }
 
-func (c *Config) ParseFromLocal(localPath string) (OCRText, error) {
+func (c *Config) ParseFromLocal(localPath string) (*OCRText, error) {
 	var results OCRText
 	params := map[string]string{
 		"language":          c.Language,
@@ -139,7 +142,7 @@ func (c *Config) ParseFromLocal(localPath string) (OCRText, error) {
 
 	file, err := os.Open(localPath)
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 	defer file.Close()
 
@@ -148,46 +151,47 @@ func (c *Config) ParseFromLocal(localPath string) (OCRText, error) {
 
 	part, err := writer.CreateFormFile("file", filepath.Base(localPath))
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 	_, err = io.Copy(part, file)
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 	for key, val := range params {
-		_ = writer.WriteField(key, val)
+		err = writer.WriteField(key, val)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = writer.Close()
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, c.Url, body)
 	if err != nil {
-		return results, err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}
 	response, err := client.Do(req)
-
 	if err != nil {
-		log.Fatal(err)
-	} else {
-		body := &bytes.Buffer{}
-		_, err := body.ReadFrom(response.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		response.Body.Close()
-		err = json.Unmarshal(body.Bytes(), &results)
-		if err != nil {
-			return results, err
-		}
+		return nil, err
+	}
+	body = &bytes.Buffer{}
+	_, err = body.ReadFrom(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	response.Body.Close()
+	err = json.Unmarshal(body.Bytes(), &results)
+	if err != nil {
+		return nil, err
 	}
 
-	return results, nil
+	return &results, nil
 }
 
 func (ocr *OCRText) JustText() string {

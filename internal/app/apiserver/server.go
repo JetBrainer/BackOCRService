@@ -17,43 +17,53 @@ package apiserver
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/JetBrainer/BackOCRService/internal/app"
-	"github.com/JetBrainer/BackOCRService/internal/app/store"
-	"github.com/go-openapi/runtime/middleware"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
 	"os"
+
+	"github.com/JetBrainer/BackOCRService/internal/app"
+	"github.com/JetBrainer/BackOCRService/internal/app/store"
+	client2 "github.com/Somatic-KZ/sso-client"
+	"github.com/Somatic-KZ/sso-client/client"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
+	"github.com/go-openapi/runtime/middleware"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 type server struct {
-	router *mux.Router
+	router *chi.Mux
 	logger *zerolog.Logger
 	config *Config
 	store  store.Store
+	ssoCli client.SSO
 }
 
-func newServer(store store.Store, config *Config) *server {
+func newServer(store store.Store, config *Config) (*server, error) {
 	// Put Log Level to Debug
 
-	logLevel := zerolog.DebugLevel
-	zerolog.SetGlobalLevel(logLevel)
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+
+	cli, err := client2.NewSSO(&client2.Config{Addr: config.GRPCPort, Protocol: "grpc"})
+	if err != nil {
+		return nil, err
+	}
 
 	// Configure Router
 	s := &server{
-		router: mux.NewRouter(),
+		router: chi.NewRouter(),
 		logger: &logger,
 		config: config,
 		store:  store,
+		ssoCli: cli,
 	}
 
 	s.configureRouter()
 
-	return s
+	return s, nil
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -62,12 +72,13 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) configureRouter() {
 
-	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
+	auth := NewAuthenticator([]byte(s.config.JWTKey))
 
-	s.router.HandleFunc("/register", s.createUserHandler()).Methods(http.MethodPost)
-	s.router.HandleFunc("/image", s.docJsonHandler()).Methods(http.MethodPost)
-	s.router.HandleFunc("/form", s.getDocPartFormHandler()).Methods(http.MethodPost)
+	s.router.Use(jwtauth.Verifier(auth.TokenAuth()))
+	s.router.Use(NewUserAccessCtx([]byte(s.config.JWTKey)).ChiMiddleware)
 
+	s.router.Post("/image", s.docJsonHandler())
+	s.router.Post("/form", s.getDocPartFormHandler())
 
 	// Openapi 2.0 spec generation handler
 	ops := middleware.RedocOpts{SpecURL: "/api/v1/swagger.yaml"}
@@ -81,8 +92,7 @@ func (s *server) configureRouter() {
 			s.logger.Err(err).Msg("Error loading template")
 		}
 	})
-	s.router.PathPrefix("/").
-		Handler(http.FileServer(http.Dir("./static")))
+
 }
 
 func (s *server) getDocPartFormHandler() http.HandlerFunc {
@@ -117,18 +127,30 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc {
 // Get JSON base64 image
 func (s *server) docJsonHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		id, ok := ctx.Value("tdid").(string)
+		if !ok {
+			http.Error(w, "no id", http.StatusUnauthorized)
+			return
+		}
+
 		jValue := &OCRText{}
 		val := &req{}
 		err := json.NewDecoder(r.Body).Decode(&val)
 		if err != nil {
 			log.Info().Msg("Unmarshal error")
+			http.Error(w,err.Error(), http.StatusBadRequest)
 			return
 		}
-		//key := r.Header.Get("Authorization")
 
-		err = s.store.User().CheckToken(val.Token)
+		if val.Base == "" {
+			log.Info().Msg("Not Valid Image")
+			http.Error(w,err.Error(), http.StatusBadRequest)
+		}
+
+		err = s.ssoCli.UserToken(ctx, id)
 		if err != nil {
-			http.Error(w, "Invalid Token", http.StatusBadRequest)
+			http.Error(w, client.ErrTokenNotFound.Error(), http.StatusNoContent)
 			return
 		}
 
@@ -140,7 +162,7 @@ func (s *server) docJsonHandler() http.HandlerFunc {
 			return
 		}
 
-		//Document structure and we parse text to it
+		// Document structure and we parse text to it
 		docType := app.GetMultiplexer(jValue.JustText())
 		if docType == nil {
 			s.logger.Err(err).Msg("No recognized document")
@@ -172,8 +194,7 @@ type docResponse struct {
 
 // Our base64 document
 type req struct {
-	Token string `json:"token"`
-	Base  string `json:"base64"`
+	Base string `json:"base64"`
 }
 
 // Get data, put your token in header

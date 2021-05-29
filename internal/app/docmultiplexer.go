@@ -9,20 +9,8 @@ func MultiplexDocument(text string) string {
 	invSchet := DocStr{}
 	invSchet.RuleDocUsage(text)
 
-	//vSchet := reflect.ValueOf(invSchet)
-
 	var counter int
-	//for i:=0;i< vSchet.NumField();i++{
-	//	values := vSchet.Field(i).String()
-	//	if values != ""{
-	//		counter++
-	//	}
-	//}
-	//if counter == 6{
-	//	return "Счет Фактура"
-	//}
 
-	counter = 0
 	docPlat := DocPlatPoruchenie{}
 	docPlat.RuleDocUsage(text)
 
@@ -33,7 +21,7 @@ func MultiplexDocument(text string) string {
 			counter++
 		}
 	}
-	if counter >= docPlatSchet.NumField() - 3 {
+	if counter >= docPlatSchet.NumField()-3 {
 		return "Платежное Поручение"
 	}
 
@@ -41,21 +29,15 @@ func MultiplexDocument(text string) string {
 }
 
 func GetMultiplexer(text string) Document {
-	valType := MultiplexDocument(text)
-
-	switch valType {
+	switch MultiplexDocument(text) {
 	case "Счет Фактура":
 		log.Println("Счет фактура")
-		invSchet := DocStr{}
-		return &invSchet
+		return &DocStr{}
 	case "Платежное Поручение":
 		log.Println("Платежное Поручение")
-		docPlat := DocPlatPoruchenie{}
-		return &docPlat
-	case "":
+		return &DocPlatPoruchenie{}
+	default:
 		log.Println("Не распознано")
 		return nil
 	}
-
-	return nil
 }

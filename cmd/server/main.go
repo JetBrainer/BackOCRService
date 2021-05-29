@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"flag"
-	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
-	"github.com/rs/zerolog/log"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/JetBrainer/BackOCRService/internal/app/apiserver"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
@@ -18,7 +17,7 @@ func main() {
 
 	// Configs
 	config, err := apiserver.InitConfig()
-	if err != nil{
+	if err != nil {
 		log.Fatal().Err(err).Msg("Decode file Failed")
 	}
 	// context to shutdown
@@ -29,18 +28,10 @@ func main() {
 	serv, db := apiserver.Start(config)
 
 	// Server Shutdown
-	defer func(serv *http.Server) {
-		if err := serv.Shutdown(ctx); err != nil {
-			log.Info().Msg("Server Shutdown error")
-		}
-	}(serv)
+	defer serv.Shutdown(ctx)
 
 	// Database Close
-	defer func(db *sql.DB) {
-		if err := db.Close(); err != nil {
-			log.Info().Msg("Error db closing")
-		}
-	}(db)
+	defer db.Close()
 
 	// Signal
 	handleSignals()
