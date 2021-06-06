@@ -21,14 +21,17 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/JetBrainer/BackOCRService/internal/app"
-	"github.com/JetBrainer/BackOCRService/internal/app/store"
 	client2 "github.com/Somatic-KZ/sso-client"
 	"github.com/Somatic-KZ/sso-client/client"
 	"github.com/go-chi/chi"
+	middlware2 "github.com/go-chi/chi/middleware"
+
+	"github.com/JetBrainer/BackOCRService/internal/app"
+	"github.com/JetBrainer/BackOCRService/internal/app/store"
+
 	"github.com/go-chi/jwtauth"
 	"github.com/go-openapi/runtime/middleware"
-
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -73,6 +76,19 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *server) configureRouter() {
 
 	auth := NewAuthenticator([]byte(s.config.JWTKey))
+	s.router.Use(middlware2.NoCache) // no-cache
+	//r.Use(middleware.RequestID) // вставляет request ID в контекст каждого запроса
+	s.router.Use(middlware2.Logger)    // логирует начало и окончание каждого запроса с указанием времени обработки
+	s.router.Use(middlware2.Recoverer) // управляемо обрабатывает паники и выдает stack trace при их возникновении
+	s.router.Use(middlware2.RealIP)    // устанавливает RemoteAddr для каждого запроса с заголовками X-Forwarded-For или X-Real-IP
+	s.router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}).Handler)
 
 	s.router.Use(jwtauth.Verifier(auth.TokenAuth()))
 	s.router.Use(NewUserAccessCtx([]byte(s.config.JWTKey)).ChiMiddleware)

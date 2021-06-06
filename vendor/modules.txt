@@ -21,13 +21,10 @@ github.com/dgrijalva/jwt-go
 # github.com/go-chi/chi v1.5.4
 ## explicit
 github.com/go-chi/chi
-# github.com/go-chi/cors v1.2.0
-## explicit
+github.com/go-chi/chi/middleware
 # github.com/go-chi/jwtauth v1.0.0
 ## explicit
 github.com/go-chi/jwtauth
-# github.com/go-chi/render v1.0.1
-## explicit
 # github.com/go-openapi/analysis v0.19.10
 github.com/go-openapi/analysis
 github.com/go-openapi/analysis/internal
@@ -68,22 +65,13 @@ github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
-# github.com/google/go-cmp v0.5.5
-## explicit
 # github.com/google/uuid v1.1.2
 ## explicit
 github.com/google/uuid
-# github.com/gorilla/handlers v1.4.2
-## explicit
-github.com/gorilla/handlers
-# github.com/gorilla/mux v1.8.0
-## explicit
 # github.com/joho/godotenv v1.3.0
 ## explicit
 github.com/joho/godotenv
 github.com/joho/godotenv/autoload
-# github.com/lestrrat-go/jwx v1.1.0
-## explicit
 # github.com/lib/pq v1.8.0
 ## explicit
 github.com/lib/pq
@@ -97,6 +85,9 @@ github.com/mailru/easyjson/jwriter
 github.com/mitchellh/mapstructure
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
+# github.com/rs/cors v1.7.0
+## explicit
+github.com/rs/cors
 # github.com/rs/zerolog v1.20.0
 ## explicit
 github.com/rs/zerolog
