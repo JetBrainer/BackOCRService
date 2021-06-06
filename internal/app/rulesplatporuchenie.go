@@ -115,10 +115,10 @@ type ProduceCompanyBIN string
 
 func (pcb *ProduceCompanyBIN) Match(text string) string {
 	matched := regexp.MustCompile(string(*pcb)).FindAllString(text, 2)
-	if matched == nil {
+	if matched == nil || len(matched) != 1{
 		return ""
 	}
-	val := strings.Split(matched[1], " ")
+	val := strings.Split(matched[0], " ")
 	val2 := strings.TrimSpace(val[len(val)-1])
 	return val2
 }

@@ -77,7 +77,7 @@ func (s *server) configureRouter() {
 	s.router.Use(jwtauth.Verifier(auth.TokenAuth()))
 	s.router.Use(NewUserAccessCtx([]byte(s.config.JWTKey)).ChiMiddleware)
 
-	s.router.Post("/image", s.docJsonHandler())
+	s.router.Post("/image", s.docJSONHandler())
 	s.router.Post("/form", s.getDocPartFormHandler())
 
 	// Openapi 2.0 spec generation handler
@@ -125,7 +125,7 @@ func (s *server) getDocPartFormHandler() http.HandlerFunc {
 //	200: docResponse
 
 // Get JSON base64 image
-func (s *server) docJsonHandler() http.HandlerFunc {
+func (s *server) docJSONHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		id, ok := ctx.Value("tdid").(string)

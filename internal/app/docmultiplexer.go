@@ -25,7 +25,20 @@ func MultiplexDocument(text string) string {
 		return "Платежное Поручение"
 	}
 
-	return "Счет Фактура"
+	var counter2 int
+	inv := reflect.ValueOf(invSchet)
+	for i := 0; i <= inv.NumField()-1; i++ {
+		values := inv.Field(i).String()
+		if values != "" {
+			counter2++
+		}
+	}
+
+	if counter2 >= inv.NumField()-3 {
+		return "Счет Фактура"
+	}
+
+	return "Undefined"
 }
 
 func GetMultiplexer(text string) Document {
